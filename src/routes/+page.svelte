@@ -1,2 +1,8 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+    // import type { NDKEvent, NDKTag, NDKUser } from '@nostr-dev-kit/ndk';
+    // import ndk from '$lib/stores/ndk';
+    // import { page } from '$app/stores';
+
+    // const npub = $page.url.searchParams.get('npub');
+</script>
+<h1>default page</h1>
