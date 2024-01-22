@@ -1,3 +1,9 @@
 <script lang="ts">
+    import ProfileCard from "$lib/components/ProfileCard.svelte";
+    import {page} from "$app/stores";
+    let userid =  $page.params.userid;
+    console.log('npub detected in route')
 </script>
-<h1>npub detected</h1>
+<ProfileCard idtype="npub" userid="{userid}">
+
+</ProfileCard>
