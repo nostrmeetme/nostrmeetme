@@ -16,13 +16,20 @@
     });
     }
 </script>
-<div>
+<div class="card card-side bg-neutral">
     {#if $user}
     <!-- <pre>{JSON.stringify($user)}</pre> -->
-    <Avatar ndk={$ndk} npub={$user.npub} class="w-8 h-8 rounded-sm m-0" />
-    <span class="badge">{$user.profile?.displayName ?? $user.profile?.name}</span> 
-    <span class="badge">{$user.profile?.nip05 ?? $user.profile?.name}</span> 
-    <span class="badge"><b>npub</b>{`${$user.npub.slice(4, 13)}...`}</span>
+    <figure class="pl-10 pr-5">
+        <Avatar ndk={$ndk} npub={$user.npub} class="rounded-full w-[120px]" />
+    </figure>
+    <div class="card-body p-5">
+        <div>
+            <h2 class="card-title">{$user.profile?.displayName ?? $user.profile?.name}</h2>
+            <p class="text-info">{$user.profile?.nip05 ?? $user.profile?.name}</p>
+            <small class="badge text-secondary p-3 text-xs"><b>npub</b><code>{`${$user.npub.slice(4, 24)}...`}</code></small>
+        </div>
+        <p>{$user.profile?.about?.slice(0,60)}...</p>
+    </div>
     {/if}
     {#if !$user}
     <span>[{userid}] user not loaded</span>

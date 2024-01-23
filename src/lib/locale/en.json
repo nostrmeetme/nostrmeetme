@@ -1,0 +1,19 @@
+{
+    "app" : {
+        "header" : {
+            "title" : "Meet Me On Nostr",
+            "tagline" : "an app for sharing Nostr with friends."
+        },
+        "footer" : {
+
+        }
+    },
+    "route" : {
+        "[userid]" : {
+
+        }
+    },
+    "component" : {
+
+    }
+}
