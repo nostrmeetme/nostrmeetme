@@ -8,8 +8,6 @@ export async function createNDKUserFrom(idtype:string,userid:string,ndk:NDK){
     let pubkey:string | undefined = undefined;
     let npub:string | undefined = undefined;
     let nip05:string | undefined = undefined;
-    let doValidateNip05 = false;
-    let validatePass = true;
     switch (idtype) {
     case 'nip05':
         // load nip05
@@ -19,26 +17,19 @@ export async function createNDKUserFrom(idtype:string,userid:string,ndk:NDK){
         const nostrJson = await fetch(`https://${domain}/.well-known/nostr.json?${currentTimestamp}`) //{ mode: 'no-cors' }
         .then(r => r.json())
         .catch(() => console.log("fetching nip05 failed"));
-        // const response = await fetch(`https://${domain}/.well-known/nostr.json?${currentTimestamp}`,fetchopts);
-        // const nostrJson = await response.json();
         pubkey = nostrJson.names[username];
         user = new NDKUser({'pubkey':pubkey});
-        doValidateNip05 = true;
-        // user = new NDKUser({pubkey:pubkey});
-        // user.ndk = ndk;
         break;
 
     case 'npub':
         // load npub
         npub = userid;
         user = new NDKUser({'npub':npub});
-        // user = new NDKUser({npub:npub});
         break;
 
     case 'pubkey':
         //load pubkey
         pubkey = userid;
-        // user = ndk.getUser({pubkey:pubkey});
         user = new NDKUser({'pubkey':pubkey});
         break;
     }
@@ -49,12 +40,10 @@ export async function createNDKUserFrom(idtype:string,userid:string,ndk:NDK){
         .catch(()=> console.log('user.fetchProfile() failed'))
         .then((profile)=> {
             console.log('user.fetchProfile() complete');
-            // if(doValidateNip05) validatePass = profile?.nip05 == nip05 ? true : false;
             if(user && profile) user.profile = profile;
         });
     }
     return user;
-    // return validatePass ? user : undefined;
 }
 
 export function parseNip05(slug:string) {
@@ -64,4 +53,17 @@ export function parseNip05(slug:string) {
     } else {
         return { username: '_', domain: slug };
     }
+}
+
+export function validateUserId(userid:string):string | boolean{
+    let validIdType: string | boolean = false;
+    // https://masteringjs.io/tutorials/fundamentals/email-regex
+    const nip05VRegex = /^(?:[a-z0-9+!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/i;
+    const npubRegex = /^npub1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{58}$/;
+    const pubkeyRegex = /^[0-9a-fA-F]{64}$/;
+    validIdType = nip05VRegex.test(userid) ? 'nip05' 
+        : npubRegex.test(userid) ? 'npub' 
+        : pubkeyRegex.test(userid) ? 'pubkey' 
+        : false;
+    return validIdType;
 }

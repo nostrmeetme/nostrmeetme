@@ -1,8 +1,11 @@
 <script lang="ts">
-    // import type { NDKEvent, NDKTag, NDKUser } from '@nostr-dev-kit/ndk';
-    // import ndk from '$lib/stores/ndk';
+    import SiteLogoCard from "$lib/components/SiteLogoCard.svelte";
+    import LoginCard from "$lib/components/LoginCard.svelte";
+    import AwardsPageCard from "$lib/components/AwardsPageCard.svelte";
     // import { page } from '$app/stores';
 
     // const npub = $page.url.searchParams.get('npub');
 </script>
-<h1>default page</h1>
+<SiteLogoCard></SiteLogoCard>
+<LoginCard></LoginCard>
+<AwardsPageCard></AwardsPageCard>
