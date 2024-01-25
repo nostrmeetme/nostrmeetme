@@ -4,10 +4,10 @@ import NDK, { NDKUser } from '@nostr-dev-kit/ndk';
 
 
 export async function createNDKUserFrom(idtype:string,userid:string,ndk:NDK){
-    let user:NDKUser | undefined = undefined;
-    let pubkey:string | undefined = undefined;
-    let npub:string | undefined = undefined;
-    let nip05:string | undefined = undefined;
+    let user :NDKUser | undefined = undefined;
+    let pubkey :string | undefined = undefined;
+    let npub :string | undefined = undefined;
+    let nip05 :string | undefined = undefined;
     switch (idtype) {
     case 'nip05':
         // load nip05
@@ -18,7 +18,7 @@ export async function createNDKUserFrom(idtype:string,userid:string,ndk:NDK){
         .then(r => r.json())
         .catch(() => console.log("fetching nip05 failed"));
         pubkey = nostrJson.names[username];
-        user = new NDKUser({'pubkey':pubkey});
+        user = pubkey ? new NDKUser({'pubkey':pubkey}) : undefined;
         break;
 
     case 'npub':
@@ -42,6 +42,9 @@ export async function createNDKUserFrom(idtype:string,userid:string,ndk:NDK){
             console.log('user.fetchProfile() complete');
             if(user && profile) user.profile = profile;
         });
+    }
+    if(!user) {
+        console.log('user ID not found or not instantiated');
     }
     return user;
 }

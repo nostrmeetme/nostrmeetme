@@ -12,12 +12,16 @@
     export let userid:string;
     // TODO generate unique signup code bfor each QR, by hash of date and a secret
     let qrid = '12345';
+    let error = "";
     
     // if($user == undefined || $user.npub != userid || $user.pubkey != userid || $user.profile?.nip05 != userid){
     onMount(async() => {
         // instantiate user and load profile
         $user = await createNDKUserFrom(idtype,userid,$ndk)
-        .then(u => {return u})
+        .then(u => {
+            if(u == undefined) error = "User ["+userid+"] cannot be found on Nostr.";
+            return u
+        })
         .catch(() => console.log('createNDKUserFrom() = user undefined'));
 
         // get nprofile 
@@ -36,43 +40,14 @@
         //     nprofile.trim();
         //     nprofile = 'nostr:'+nprofile;
         // }
+        
     });
     onDestroy(async() => {
         $user = undefined;
     });
     // }
 </script>
-<!-- <div class="card card-side bg-base-100">
-    {#if $user}
-    <figure class="pl-8 pr-5">
-        <Avatar ndk={$ndk} npub={$user.npub} class="rounded-full w-[100px]" />
-    </figure>
-    <div class="card-body p-3">
-        <div>
-            <h2 class="card-title">{$user.profile?.displayName || $user.profile?.name}</h2>
-            <p class="text-info">{$user.profile?.nip05}
-            </p>
-            <div class="tooltip tooltip-right" data-tip="copy npub">
-                <button use:copy={$user.npub}><small class="badge text-secondary p-3 text-xs"><b>npub</b><code>{`${$user.npub.slice(4, 14)}...`}</code> </small> <big>&#10697;</big></button>
-            </div>
-            </div>
-        <p>{$user.profile?.about?.slice(0,60)}...</p>
-    </div>
-    {/if}
-    {#if !$user}
-    <div class="flex flex-col gap-4 w-full p-5 indicator">
-        <div class="indicator-item indicator-start loading loading-spinner loading-lg"></div>
-        <div class="flex gap-4 items-center ">
-            <div class="skeleton w-[120px] h-[120px] rounded-full shrink-0"></div>
-          <div class="flex flex-col gap-4 w-full">
-            <div class="skeleton h-4 w-full"></div>
-            <div class="skeleton h-4 w-full"></div>
-            <div class="skeleton h-24 w-full"></div>
-        </div>
-        </div>
-      </div>
-    {/if} 
-</div> -->
+
 {#if $user}
 <div class="flex justify-center px-5">
 <div class="card bg-black w-min">
@@ -124,3 +99,18 @@
 </div>
 </div>
 {/if}
+{#if !$user}
+<div class="flex flex-col gap-4 w-[420px] p-5 indicator">
+    {#if error}<p class="alert alert-error w-max">{error}</p>{/if}
+    <div class="skeleton h-[240px] w-full"></div>
+    {#if !error}<div class="indicator-item loading loading-bars loading-lg" style="top:150px; left:40%"></div>{/if}
+    <div class="flex gap-4 flex-col items-center w-full" style="margin-top:-75px">
+        <div class="flex flex-col items-center gap-4 w-[75%]">
+            <div class="skeleton w-[120px] h-[120px] rounded-full shrink-0"></div>
+            <div class="skeleton h-4 w-full"></div>
+            <div class="skeleton h-4 w-full"></div>
+            <div class="skeleton h-40 w-full"></div>
+        </div>
+    </div>
+  </div>
+{/if} 
