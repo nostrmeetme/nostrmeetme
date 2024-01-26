@@ -1,7 +1,6 @@
 <script lang="ts">
     import ndk from '$lib/stores/ndk';
     import { user } from '$lib/stores/user';
-    import { nip19 } from "nostr-tools";
     // import { Avatar } from '@nostr-dev-kit/ndk-svelte-components';
     import { onMount , onDestroy} from 'svelte';
     import {createNDKUserFrom} from '$lib/utils/user';
