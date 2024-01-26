@@ -1,7 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  // https://github.com/Superdev0103/QRCodeJS-project
-  import * as  QRCode from 'easyqrcodejs';
+  // https://github.com/ushelp/EasyQRCodeJS
+  import QRCode from 'easyqrcodejs';
+  
+  import {followOverlayURI} from '$lib/assets/nostrmeetme-qroverlay-follow.json';
+  import {signupOverlayURI} from '$lib/assets/nostrmeetme-qroverlay-signup.json';
 
   export let qrdata : string;
   export let qrimage : string | undefined;
@@ -10,7 +13,7 @@
   export let qrcodeid : string | undefined;
 
 
-  let logofile = qrcodeid == 'profile' ? 'nostrmeetme-qroverlay-follow.png' : 'nostrmeetme-qroverlay-signup.png';
+  let logofile = qrcodeid == 'profile' ? followOverlayURI : signupOverlayURI;
   let qrcomplete = false;
   let mytheme = {
         
@@ -48,7 +51,7 @@
     subTitleFont: "normal normal bold 11px Arial", // font. default is "14px Arial"
     subTitleColor: mytheme.info, // color. default is "4F4F4F"
     subTitleTop: 40, // draws y coordinates. default is 0
-    logo : '/src/lib/assets/'+logofile, 
+    logo : logofile, 
     logoWidth : 440,
     logoHeight : 420,
     logoBackgroundTransparent : true,

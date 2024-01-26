@@ -13,24 +13,28 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.28.1",
+		"@types/eslint": "8.56.0",
+		"@typescript-eslint/eslint-plugin": "^6.0.0",
+		"@typescript-eslint/parser": "^6.0.0",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-svelte": "^2.35.1",
+		"prettier": "^3.1.1",
+		"prettier-plugin-svelte": "^3.1.2"
+	},
+	"type": "module",
+	"dependencies": {
+		"@nostr-dev-kit/ndk": "^2.3.2",
 		"@nostr-dev-kit/ndk-svelte-components": "^2.0.0",
 		"easyqrcodejs": "^4.6.0",
-		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@tailwindcss/typography": "^0.5.10",
-		"@types/eslint": "8.56.0",
-		"@typescript-eslint/eslint-plugin": "^6.0.0",
-		"@typescript-eslint/parser": "^6.0.0",
 		"autoprefixer": "^10.4.16",
 		"daisyui": "^4.6.0",
-		"eslint": "^8.56.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-svelte": "^2.35.1",
 		"postcss": "^8.4.33",
-		"prettier": "^3.1.1",
-		"prettier-plugin-svelte": "^3.1.2",
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
 		"svelte-copy": "^1.4.1",
@@ -38,9 +42,5 @@
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
 		"vite": "^5.0.3"
-	},
-	"type": "module",
-	"dependencies": {
-		"@nostr-dev-kit/ndk": "^2.3.2"
 	}
 }
