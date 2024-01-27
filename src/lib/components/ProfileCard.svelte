@@ -3,7 +3,7 @@
     import { user } from '$lib/stores/user';
     // import { Avatar } from '@nostr-dev-kit/ndk-svelte-components';
     import { onMount , onDestroy} from 'svelte';
-    import {createNDKUserFrom} from '$lib/utils/user';
+    import {createNDKUserFrom, parseNip05} from '$lib/utils/user';
     import { copy } from 'svelte-copy';
     import QrCodeImage from "$lib/components/QrCodeImage.svelte";
 
@@ -18,7 +18,13 @@
         // instantiate user and load profile
         $user = await createNDKUserFrom(idtype,userid,$ndk)
         .then(u => {
-            if(u == undefined) error = "User ["+userid+"] cannot be found on Nostr.";
+            if(u == undefined) {
+                error = "User ["+userid+"] cannot be found on Nostr.";
+                if(idtype == 'nip05'){
+                    let { username, domain } = parseNip05(userid);
+                    error = "The nip05 name ["+username+"] cannot be found at domain ["+domain+"]. Try again using your npub."
+                }
+            }
             return u
         })
         .catch(() => console.log('createNDKUserFrom() = user undefined'));
@@ -48,10 +54,10 @@
 </script>
 
 {#if $user}
-<div class="flex justify-center px-5">
+<div class="flex justify-center px-3">
 <div class="card bg-black w-min">
     <figure>
-        <div role="tablist" class="tabs tabs-boxed bc-primary justify-center bg-black">
+        <div role="tablist" class="tabs tabs-boxed bc-primary justify-center bg-black p-0">
             <input aria-label="Follow Me" type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px" checked/>
             <div role="tabpanel" class="tab-content h-[410px] w-[380px] pt-[8px]" style="overflow:hidden">
                 <QrCodeImage 
@@ -92,7 +98,7 @@
         <div class="tooltip tooltip-right" data-tip="copy npub">
             <button use:copy={$user.npub}><small class="badge text-secondary p-3 text-xs"><b>npub</b><code>{`${$user.npub.slice(4, 14)}...`}</code> </small> <big>&#10697;</big></button>
         </div>
-        <p class="">{$user.profile?.about}</p>
+        <p class="" style="overflow-wrap: break-word; word-break: break-word;">{$user.profile?.about}</p>
 
     </div>   
 </div>
@@ -100,7 +106,7 @@
 {/if}
 {#if !$user}
 <div class="flex flex-col gap-4 w-[420px] p-5 indicator">
-    {#if error}<p class="alert alert-error w-max">{error}</p>{/if}
+    {#if error}<p class="alert alert-error w-full">{error}</p>{/if}
     <div class="skeleton h-[240px] w-full"></div>
     {#if !error}<div class="indicator-item loading loading-bars loading-lg" style="top:150px; left:40%"></div>{/if}
     <div class="flex gap-4 flex-col items-center w-full" style="margin-top:-75px">
