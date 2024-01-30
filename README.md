@@ -1,38 +1,37 @@
-# create-svelte
+# Meet Me On Nostr
+an app for sharing Nostr wih friends
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
 
-## Creating a project
+This is a "social onboarding" Nostr web client designed for Nostr advocates to "in person" invite their freiends to join them on Nostr.
 
-If you're seeing this, you've probably already done this step. Congrats!
+CURRENTLY IN APLPHA DEVELOPMENT, not all features are available yet.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+With a single QR code scan (or web link), the new friend will create an account, follow the advocate, and start a DM thread with the advocate in a single web app. New users will recieve an instant trust score, a list of reccomended follows, suggested clients and relays, introductions to private groups, and more. All configurable for each invite by the logged-in advocate in the app settings. 
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+See the live version 
+[ostrmeet.me](https://nostrmeet.me)
+
+Meet me on nostr:
+[nostrmeet.me/manime](https://nostrmeet.me/manime)
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Once you've installed the project and dependencies with `npm install`, start a development server:
 
 ```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
+this will run `vite dev --host`
+The client will now be available on your localhost and hosted locally on your LAN
+http://localhost:5173/
 
-## Building
 
-To create a production version of your app:
+## Testing
+
+To test the production version locally, run
 
 ```bash
 npm run build
 ```
-
 You can preview the production build with `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
