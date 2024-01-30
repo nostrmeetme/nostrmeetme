@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-112,-804)">
+        <g id="chat-icon" transform="matrix(0.995106,0,0,0.663404,938.953,334.776)">
+            <rect x="-830.477" y="707.83" width="90.443" height="90.443" style="fill:none;"/>
+            <g transform="matrix(1.00492,0,0,1.50738,-943.571,-504.634)">
+                <path d="M169.618,812.482L140.03,812.482C135.211,812.482 131.298,816.395 131.298,821.214L131.298,847.494C131.298,852.313 135.211,856.225 140.03,856.225L183.783,856.225C180.328,854.079 179.133,848.657 178.35,842.33L178.35,821.214C178.35,816.395 174.437,812.482 169.618,812.482ZM171.783,822.006L137.866,822.006L137.866,828.481L171.783,828.481L171.783,822.006ZM171.783,831.116L137.866,831.116L137.866,837.591L171.783,837.591L171.783,831.116ZM160.728,840.226L137.866,840.226L137.866,846.701L160.728,846.701L160.728,840.226Z"/>
+            </g>
+        </g>
+    </g>
+</svg>
