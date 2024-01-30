@@ -8,11 +8,14 @@ CURRENTLY IN APLPHA DEVELOPMENT, not all features are available yet.
 
 With a single QR code scan (or web link), the new friend will create an account, follow the advocate, and start a DM thread with the advocate on the web app. New users will recieve an instant trust score, a list of reccomended follows, suggested clients and relays, introductions to private groups, and more. All configurable for each invite by the logged-in advocate in the app settings. 
 
-See the live version 
-[ostrmeet.me](https://nostrmeet.me)
+See the demo reel
+https://nostrmeet.me
+
+See the alpha preview
+https://app.nostrmeet.me
 
 Meet me on nostr:
-[nostrmeet.me/manime](https://nostrmeet.me/manime)
+https://app.nostrmeet.me/manime
 
 ## Developing
 
