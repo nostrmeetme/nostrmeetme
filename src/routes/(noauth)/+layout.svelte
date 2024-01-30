@@ -1,5 +1,5 @@
 <script>
-  import "../app.css";
+  import "../../app.css";
   import SponsorFooter from "$lib/components/SponsorFooter.svelte";
   import AppHeader from "$lib/components/AppHeader.svelte";
 </script>
