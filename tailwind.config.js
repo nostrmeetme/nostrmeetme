@@ -10,25 +10,26 @@ export default {
   daisyui: {
     themes: [
       {
+        // https://paletton.com/#uid=74C1q0kXR++iTVKu7+h+WvBZtlo
         mytheme: {
           
-          "primary": "#5b21b6",
+          "primary": "#9000FE",
                    
-          "secondary": "#86198f",
+          "secondary": "#FC6600",
                    
-          "accent": "#ea580c",
+          "accent": "#FCF400",
                    
-          "neutral": "#1f2937",
+          "neutral": "#301745",
                    
-          "base-100": "#111827",
+          "base-100": "#160027",
                    
-          "info": "#7c3aed",
+          "info": "#B76CF1",
                    
-          "success": "#c026d3",
+          "success": "#62F0D8",
                    
-          "warning": "#ca8a04",
+          "warning": "#FFA569",
                    
-          "error": "#991b1b",
+          "error": "#FFFA69",
          },
       },
     ],

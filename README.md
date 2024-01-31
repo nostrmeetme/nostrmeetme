@@ -1,6 +1,8 @@
 # Meet Me On Nostr
 an app for sharing Nostr wih friends
 
+![App Icon](src/lib/assets/appicon.png)
+
 
 This is a "social onboarding" Nostr web client designed for Nostr advocates to "in person" invite their friends to join them on Nostr.
 
