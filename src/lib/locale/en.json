@@ -15,7 +15,7 @@
     },
     "component" : {
         "LoginCard" : {
-            "messagemvp" : "Login to generate a 'Follow Me' QR code for your firends.",
+            "messagemvp" : "Login to generate a 'Follow Me' QR code for your friends.",
             "message" :  "Login to generate custom Nostr invitation QR codes for your freinds to sign up and follow you, start a DM thread with you, and discover your reccomended Nostr favs.",
             "input" : "nip05, npub, or pubkey",
             "button" : "nsec browser extension"
