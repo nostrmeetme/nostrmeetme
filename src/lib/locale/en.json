@@ -2,8 +2,7 @@
     "app" : {
         "header" : {
             "title" : "Meet Me On Nostr",
-            "tagline" : "an app for sharing Nostr with friends.",
-            "credit" : "with ♡ from"
+            "tagline" : "an app for sharing Nostr with friends."
         },
         "footer" : {
 
@@ -16,8 +15,8 @@
     },
     "component" : {
         "LoginCard" : {
-            "messagepubkey" :  "Invite friends with your nostrname or public key.",
-            "messageprivkey" : "Use a private key to customize invitations.",
+            "messagemvp" : "Login to generate a 'Follow Me' QR code for your firends.",
+            "message" :  "Login to generate custom Nostr invitation QR codes for your freinds to sign up and follow you, start a DM thread with you, and discover your reccomended Nostr favs.",
             "input" : "nip05, npub, or pubkey",
             "button" : "nsec browser extension"
         },
@@ -28,6 +27,17 @@
         },
         "SponsorFooter" : {
             "sponsortag" : "Sponsored by"
+        },
+        "AppCreditsList" : {
+            "madewithlove" : "Made with ♥︎",
+            "sponsors" : "Sponsors",
+            "developers" : "Developers",
+            "collaborators" : "Collaborators"
+        },
+        "AwardsPromoCard" : {
+            "getzapped" : "Get Zapped from the",
+            "nostradvocatesaward" : "Nostr Advocates Award",
+            "details" : "COMMING SOON!! Every month top Nostr advcates will win!"
         }
     }
 }

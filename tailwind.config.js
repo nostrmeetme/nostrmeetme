@@ -13,11 +13,11 @@ export default {
         // https://paletton.com/#uid=74C1q0kXR++iTVKu7+h+WvBZtlo
         mytheme: {
           
-          "primary": "#9000FE",
+          "primary": "#8200E5",
                    
-          "secondary": "#FC6600",
+          "secondary": "#E45B00",
                    
-          "accent": "#FCF400",
+          "accent": "#5E2500",
                    
           "neutral": "#301745",
                    
