@@ -3,49 +3,37 @@
     import { user } from '$lib/stores/user';
     // import { Avatar } from '@nostr-dev-kit/ndk-svelte-components';
     import { onMount , onDestroy} from 'svelte';
-    import {createNDKUserFrom, parseNip05} from '$lib/utils/user';
+    import * as userLib from '$lib/utils/user';
     import { copy } from 'svelte-copy';
     import QrCodeImage from "$lib/components/QrCodeImage.svelte";
-
-    export let idtype:string;
-    export let userid:string;
+    export let idtype:userLib.PubidTypes|undefined = undefined;
+    export let userid:string|undefined = undefined;
     // TODO generate unique signup code bfor each QR, by hash of date and a secret
     let qrid = '12345';
     let error = "";
-    
+
     // if($user == undefined || $user.npub != userid || $user.pubkey != userid || $user.profile?.nip05 != userid){
     onMount(async() => {
+        console.log('ProfileCard component mounted');
         // instantiate user and load profile
-        $user = await createNDKUserFrom(idtype,userid,$ndk)
-        .then(u => {
-            if(u == undefined) {
-                error = "User ["+userid+"] cannot be found on Nostr.";
-                if(idtype == 'nip05'){
-                    let { username, domain } = parseNip05(userid);
-                    error = "The nip05 name ["+username+"] cannot be found at domain ["+domain+"]. Try again using your npub."
+        if(idtype && userid){
+            $user = await userLib.createNDKUserFrom(userid,idtype,$ndk)
+            .then(u => {
+                if(u == undefined) {
+                    // TODO throw error
+                    error = "User ["+userid+"] cannot be found on Nostr.";
+                    if(idtype == 'nip05'){
+                        let { username, domain } = userLib.parseNip05(userid);
+                        error = "The nip05 name ["+username+"] cannot be found at domain ["+domain+"]. Try again using your npub."
+                    }
                 }
-            }
-            return u
-        })
-        .catch(() => console.log('createNDKUserFrom() = user undefined'));
-
-        // get nprofile 
-        // if($user){
-        //     let relays = await $user.relayList().then((relayList)=>{
-        //         const r = [];
-        //         if(relayList){
-        //             for (const url of relayList.relays) {
-        //                 r.push(url);
-        //             }
-        //             return r;
-        //         }
-        //     });
-        //     relays = relays ? relays : [];
-        //     nprofile = await nip19.nprofileEncode({pubkey : $user.pubkey, relays});
-        //     nprofile.trim();
-        //     nprofile = 'nostr:'+nprofile;
-        // }
-        
+                return u
+            })
+            .catch(() => console.log('createNDKUserFrom() = user undefined'));
+        }
+        if(!user){
+            throw console.log("no user available to render ProfileCard");
+        }        
     });
     onDestroy(async() => {
         $user = undefined;
@@ -61,11 +49,12 @@
             <input aria-label="Follow Me" type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px" checked/>
             <div role="tabpanel" class="tab-content h-[410px] w-[380px] pt-[8px]" style="overflow:hidden">
                 <QrCodeImage 
-                qrcodeid="profile"
+                qrtype="profile"
                 qrdata="nostr:{$user.npub}" 
                 qrimage="{$user.profile?.image}" 
                 qrtitle="{$user.profile?.displayName || $user.profile?.name}"
-                qrsubtitle="{$user.profile?.nip05 || $user.npub}"></QrCodeImage>
+                qrsubtitle="{$user.profile?.nip05 || $user.npub}"
+                qrlogo=""></QrCodeImage>
                 <div class="flex justify-between w-full pb-5">
                     <button class="btn btn-sm text-info" use:copy={$user.npub}>Copy npub</button>
                     <a class="btn btn-sm text-info" href="nostr:{$user.npub}">Launch client</a>
@@ -74,12 +63,12 @@
 
             <input aria-label="Create Account"  type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px" disabled/>
             <div role="tabpanel" class="tab-content h-[380px] w-[380px] pt-[8px]" style="overflow:hidden">
-                <QrCodeImage 
-                qrcodeid="signup-"{qrid}
+                <!-- <QrCodeImage 
+                qrtype="invite"
                 qrdata="https://nostrmeet.me/{$user.profile?.nip05 || $user.npub}/signup/" 
                 qrimage="{$user.profile?.image}" 
                 qrtitle="{$user.profile?.displayName || $user.profile?.name}"
-                qrsubtitle="{$user.profile?.nip05 || $user.npub}"></QrCodeImage>
+                qrsubtitle="{$user.profile?.nip05 || $user.npub}"></QrCodeImage> -->
             </div>
         </div>
     </figure>

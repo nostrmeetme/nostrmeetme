@@ -5,7 +5,7 @@ export const actions = {
         const data = await request.formData();
         let userid = data.get('userid');
         // login via nip05 or npub or pubkey
-        if(userid) throw redirect(303,'/'+userid);
+        if(userid) {throw redirect(303,'/'+userid);}
         // login via browser exension
         return;
     }
