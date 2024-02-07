@@ -1,7 +1,7 @@
 # Meet Me On Nostr
 an app for sharing Nostr wih friends
 
-![App Icon](src/lib/assets/appicon.png)
+![App Icon](static/appicon.png)
 
 
 This is a "social onboarding" Nostr web client designed for Nostr advocates to "in person" invite their friends to join them on Nostr.
@@ -10,14 +10,16 @@ CURRENTLY IN APLPHA DEVELOPMENT, not all features are available yet.
 
 With a single QR code scan (or web link), the new friend will create an account, follow the advocate, and start a DM thread with the advocate on the web app. New users will recieve an instant trust score, a list of reccomended follows, suggested clients and relays, introductions to private groups, and more. All configurable for each invite by the logged-in advocate in the app settings. 
 
+![Alt text](static/mvp-screens.png)
+
 See the demo reel
 https://nostrmeet.me
 
 See the alpha preview
-https://app.nostrmeet.me
+https://nostrmeet.me
 
 Meet me on nostr:
-https://app.nostrmeet.me/manime
+https://nostrmeet.me/manime
 
 ## Developing
 

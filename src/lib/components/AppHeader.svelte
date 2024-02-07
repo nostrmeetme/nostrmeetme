@@ -6,8 +6,9 @@
     import { user } from '$lib/stores/user';
 </script>
 <header class="box bg-primary text-center pb-1">
-    <h1 class="title text-[2.5em]" style="line-height:1em">
-        <a href="/">{locale.app.header.title}</a></h1>
+    <h1 class="title text-[2.5em] indicator" style="line-height:1em;margin-top:10px">
+        <span class="indicator-item badge badge-secondary" style="top:3px">ALPHA</span> 
+        <span>{locale.app.header.title}</span></h1>
 
     <div class="flex justify-between align-center items-center">
         {#if $user}      
@@ -55,7 +56,7 @@
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
         <h3 class="font-bold text-lg">User Settings</h3>
-        <p class="py-4">comming soon ...</p>
+        <p class="py-4 text-right"><a href="/">Logout</a></p>
         <div class="modal-action">
         </div>
     </div>
