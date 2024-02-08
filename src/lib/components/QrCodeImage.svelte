@@ -30,9 +30,9 @@
   
 </script>
 
-  <div class="" style="margin-top:-60px"> 
+  <div class="" style="overflow:hidden"> 
     {#if qrcode}
-      <img src="{qrcode.toString()}" alt="{qrtype} qr code"/>
+      <img src="{qrcode.toString()}" alt="{qrtype} qr code" style="margin-top:-50px"/>
     {/if}
   </div>
 

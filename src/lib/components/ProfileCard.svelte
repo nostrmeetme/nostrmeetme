@@ -45,16 +45,18 @@
 <div class="flex justify-center px-3">
 <div class="card bg-black w-min">
     <figure>
-        <div role="tablist" class="tabs tabs-boxed bc-primary justify-center bg-black p-0">
-            <input aria-label="Follow Me" type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px" checked/>
-            <div role="tabpanel" class="tab-content h-[410px] w-[380px] pt-[8px]" style="overflow:hidden">
-                <QrCodeImage 
-                qrtype="profile"
-                qrdata="nostr:{$user.npub}" 
-                qrimage="{$user.profile?.image}" 
-                qrtitle="{$user.profile?.displayName || $user.profile?.name}"
-                qrsubtitle="{$user.profile?.nip05 || $user.npub}"
-                qrlogo=""></QrCodeImage>
+        <div role="tablist" class="tabs tabs-boxed justify-center bg-black p-0">
+            <input aria-label="Follow Me" type="radio" name="qr_tabs" role="tab" class="tab bg-neutral" style="width:185px" checked/>
+            <div role="tabpanel" class="tab-content h-[410px] w-[380px]" style="overflow:hidden;">
+                <div class="border-primary border-solid border-2">
+                    <QrCodeImage 
+                    qrtype="profile"
+                    qrdata="nostr:{$user.npub}" 
+                    qrimage="{$user.profile?.image}" 
+                    qrtitle="{$user.profile?.displayName || $user.profile?.name}"
+                    qrsubtitle="{$user.profile?.nip05 || $user.npub}"
+                    qrlogo=""></QrCodeImage>
+                </div>
                 <div class="flex justify-between w-full pb-5">
                     <button class="btn btn-sm text-info" use:copy={$user.npub}>Copy npub</button>
                     <a class="btn btn-sm text-info" href="nostr:{$user.npub}">Launch client</a>
