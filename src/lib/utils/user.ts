@@ -18,8 +18,8 @@ export async function createNDKUserFrom(userid:string,idtype:PubidTypes|undefine
         // load nip05
         nip05 = userid;
         const { username, domain } = parseNip05(userid);
-        const currentTimestamp = Math.floor(Date.now() / 1000);
-        const nostrJson = await fetch(`https://${domain}/.well-known/nostr.json?${currentTimestamp}`) //{ mode: 'no-cors' }
+        // const currentTimestamp = Math.floor(Date.now() / 1000);
+        const nostrJson = await fetch(`https://${domain}/.well-known/nostr.json?name=${username}`) //{ mode: 'no-cors' }
         .then(r => r.json())
         .catch(() => console.log("fetching nip05 failed"));
         pubkey = nostrJson.names[username];
