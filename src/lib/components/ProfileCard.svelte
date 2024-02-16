@@ -6,42 +6,33 @@
     import * as userLib from '$lib/utils/user';
     import { copy } from 'svelte-copy';
     import QrCodeImage from "$lib/components/QrCodeImage.svelte";
-    export let idtype:userLib.PubidTypes|undefined = undefined;
-    export let userid:string|undefined = undefined;
+    import {Invite} from '$lib/utils/invite'
+
+    export let idtype: userLib.PubidTypes | undefined = undefined;
+    export let pubid: string | undefined = undefined;
+
     // TODO generate unique signup code bfor each QR, by hash of date and a secret
     let qrid = '12345';
     let error = "";
+    let inviteurl: URL;
 
-    // if($user == undefined || $user.npub != userid || $user.pubkey != userid || $user.profile?.nip05 != userid){
+    // if($user == undefined || $user.npub != pubid || $user.pubkey != pubid || $user.profile?.nip05 != pubid){
     onMount(async() => {
         console.log('ProfileCard component mounted');
-        // instantiate user and load profile
-        if(idtype && userid){
-            $user = await userLib.createNDKUserFrom(userid,idtype,$ndk)
-            .then(u => {
-                if(u == undefined) {
-                    // TODO throw error
-                    error = "User ["+userid+"] cannot be found on Nostr.";
-                    if(idtype == 'nip05'){
-                        let { username, domain } = userLib.parseNip05(userid);
-                        error = "The nip05 name ["+username+"] cannot be found at domain ["+domain+"]. Try again using your npub."
-                    }
-                }
-                return u
-            })
-            .catch(() => console.log('createNDKUserFrom() = user undefined'));
-        }
-        if(!user){
+        // user.set()
+        if($user) {
+            inviteurl = new Invite($user).toURL();
+        }else{
             throw console.log("no user available to render ProfileCard");
         }        
     });
     onDestroy(async() => {
-        $user = undefined;
+        // $user = undefined;
     });
     // }
 </script>
 
-{#if $user}
+{#if $user && $user.profile}
 <div class="flex justify-center px-3">
 <div class="card bg-black w-min">
     <figure>
@@ -65,12 +56,13 @@
 
             <input aria-label="Create Account"  type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px" disabled/>
             <div role="tabpanel" class="tab-content h-[380px] w-[380px] pt-[8px]" style="overflow:hidden">
-                <!-- <QrCodeImage 
-                qrtype="invite"
-                qrdata="https://nostrmeet.me/{$user.profile?.nip05 || $user.npub}/signup/" 
-                qrimage="{$user.profile?.image}" 
-                qrtitle="{$user.profile?.displayName || $user.profile?.name}"
-                qrsubtitle="{$user.profile?.nip05 || $user.npub}"></QrCodeImage> -->
+                <QrCodeImage 
+                    qrtype="invite"
+                    qrdata="{inviteurl.toString()}" 
+                    qrimage="{$user.profile?.image}" 
+                    qrtitle="{$user.profile?.displayName || $user.profile?.name}"
+                    qrsubtitle="{$user.profile?.nip05 || $user.npub}"
+                    qrlogo=""></QrCodeImage>
             </div>
         </div>
     </figure>
@@ -87,7 +79,12 @@
         <h2 class="card-title">{$user.profile?.displayName || $user.profile?.name}</h2>
         <p class="text-info">{$user.profile?.nip05}</p>
         <div class="tooltip tooltip-right" data-tip="copy npub">
-            <button use:copy={$user.npub}><small class="badge text-secondary p-3 text-xs"><b>npub</b><code>{`${$user.npub.slice(4, 14)}...`}</code> </small> <big>&#10697;</big></button>
+            <button use:copy={$user.npub}>
+                <small class="badge text-secondary p-3 text-xs">
+                    <b>npub</b><code>{`${$user.npub.slice(4, 14)}...`}</code> 
+                </small> 
+                <big>&#10697;</big>
+            </button>
         </div>
         <p class="" style="overflow-wrap: break-word; word-break: break-word;">{$user.profile?.about}</p>
 

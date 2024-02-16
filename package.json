@@ -38,6 +38,7 @@
 		"daisyui": "^4.6.0",
 		"easyqrcodejs": "^4.6.0",
 		"easyqrcodejs-nodejs": "^4.5.1",
+		"nostr-login": "^1.0.9",
 		"pm2": "^5.3.1",
 		"postcss": "^8.4.33",
 		"svelte": "^4.2.7",
