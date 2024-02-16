@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { user } from "$lib/stores/user";
 
+  let pathToQrcode = '/'+ $user?.profile?.nip05 || $user?.npub || '';
 </script>
 
 <footer class="btm-nav h-[90px] bg-transparent" style="align-items:end;max-width:100vw;justify-content:stretch">
@@ -28,7 +30,7 @@
             </g>
           </svg>        
         </button>
-        <button class="bg-primary px-1 h-[80px]" style="border-radius:35px 35px 0 0;">
+        <a href="{pathToQrcode}" class="bg-primary px-1 h-[80px]" style="border-radius:35px 35px 0 0;">
           <svg width="100%" height="100%" fill="white" viewBox="0 0 91 91" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
             <g transform="matrix(1,0,0,1,-235,-774)">
                 <g id="qrcode-icon" transform="matrix(0.995106,0,0,0.995106,1061.44,69.9876)">
@@ -39,7 +41,7 @@
                 </g>
               </g>
             </svg>
-          </button>
+          </a>
           <button class="bg-primary p-1 h-[50px]">
             <svg width="100%" height="100%" fill="#333" viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
               <g transform="matrix(1,0,0,1,-337,-804)">

@@ -1,13 +1,74 @@
 // import ndk from '$lib/stores/ndk';
 // import { writable } from 'svelte/store';
 import NDK, { NDKUser } from '@nostr-dev-kit/ndk';
+// import { user } from "$lib/stores/user";
 
 export const NIP05 = 'nip05';
 export const NPUB = 'npub';
 export const PUBKEY = 'pubkey';
 export type PubidTypes = 'nip05' | 'npub' | 'pubkey';
+export let ndk:NDK;
 
-export async function createNDKUserFrom(userid:string,idtype:PubidTypes|undefined,ndk:NDK){
+export const PUBID = {
+    NIP05 : 'nip05',
+    NPUB : 'npub',
+    PUBKEY: 'pubkey'
+}
+
+/** 
+ * NostrUser extends NDKUser:
+ * - may be instantiated from any pubid (pubkey, nbup, ni05)
+ * - loads kind0 profile upon insttiation
+ * - verifies kind0 profile exists on nostr
+ * - nip05 is a class level property (rather than only in profile)
+ */
+
+// export class NostrUser extends NDKUser {
+
+
+//     public constructor(opts: NDKUserParams) {
+//         if (opts.npub) this._npub = opts.npub;
+
+//         if (opts.hexpubkey) this._pubkey = opts.hexpubkey;
+//         if (opts.pubkey) this._pubkey = opts.pubkey;
+
+//         if (opts.relayUrls) {
+//             this.relayUrls = opts.relayUrls;
+//         }
+//         super(opts);
+//     }
+
+// }
+
+export async function confirmUser(user: NDKUser|undefined, pubid: string|undefined=undefined, idtype: PubidTypes|undefined=undefined){
+    let ismatch:boolean = false;
+    let logmsg : string;
+    // instantiate user and load profile
+    if(!!idtype && !!pubid){
+        if(!!user){
+            ismatch = userHasPubid(user,pubid,idtype);
+            // user.set(ismatch ? user : undefined);
+        }
+        if(!ismatch || user == undefined){
+            user = await createNDKUserFrom(pubid,idtype)
+                .then(u => {
+                    if(u == undefined) {
+                        // TODO throw error
+                        logmsg = "User ["+pubid+"] cannot be found on Nostr.";
+                        if(idtype == NIP05){
+                            let { username, domain } = parseNip05(pubid);
+                            logmsg = "The nip05 name ["+username+"] cannot be found at domain ["+domain+"]. Try again using your npub."
+                        }
+                        console.log(logmsg);
+                    }
+                    return u
+                });
+        }            
+    }
+}
+
+
+export async function createNDKUserFrom(userid:string,idtype:PubidTypes|undefined,ndk?:NDK){
     console.log('createNDKUserFrom()');
     let user :NDKUser | undefined = undefined;
     let pubkey :string | undefined = undefined;
@@ -17,13 +78,13 @@ export async function createNDKUserFrom(userid:string,idtype:PubidTypes|undefine
     case NIP05:
         // load nip05
         nip05 = userid;
-        const { username, domain } = parseNip05(userid);
-        // const currentTimestamp = Math.floor(Date.now() / 1000);
-        const nostrJson = await fetch(`https://${domain}/.well-known/nostr.json?name=${username}`) //{ mode: 'no-cors' }
-        .then(r => r.json())
-        .catch(() => console.log("fetching nip05 failed"));
-        pubkey = nostrJson.names[username];
-        user = pubkey ? new NDKUser({'pubkey':pubkey}) : undefined;
+        user =  await NDKUser.fromNip05(nip05);
+        // const { username, domain } = parseNip05(userid);
+        // const nostrJson = await fetch(`https://${domain}/.well-known/nostr.json?name=${username}`) //{ mode: 'no-cors' }
+        // .then(r => r.json())
+        // .catch(() => console.log("fetching nip05 failed"));
+        // pubkey = nostrJson.names[username];
+        // user = pubkey ? new NDKUser({'pubkey':pubkey}) : undefined;
         break;
 
     case NPUB:
@@ -44,13 +105,15 @@ export async function createNDKUserFrom(userid:string,idtype:PubidTypes|undefine
     }
     // ndk
     if(user){
-        user.ndk = ndk;
+        console.log('fetching user profile')
+        user.ndk = ndk || new NDK;
         await user.fetchProfile()
         .catch(()=> console.log('user.fetchProfile() failed'))
         .then((profile)=> {
             console.log('user.fetchProfile() complete');
             if(user && profile) user.profile = profile;
         });
+        console.log('user name from profile :'+ user.profile?.name)
     }
     if(!user) {
         console.log('user ID not found or not instantiated');
@@ -81,4 +144,14 @@ export function pubidIsType(pubid:string|undefined = undefined, pubidType:PubidT
         if((pubidType == PUBKEY || undefined ) && pubkeyRegex.test(pubid)) isType = PUBKEY;
     }
     return isType;
+}
+
+export function userHasPubid(user:NDKUser,pubid:string,idtype:PubidTypes|undefined){
+    let ismatch: boolean = false;
+    if(!!user.profile){
+        if((idtype == NIP05 || undefined) && pubid == user.profile.nip05) ismatch = true;
+        if((idtype == NPUB || undefined) && pubid == user.npub) ismatch = true;
+        if((idtype == PUBKEY || undefined) && pubid == user.pubkey) ismatch = true;
+    }
+    return ismatch;
 }

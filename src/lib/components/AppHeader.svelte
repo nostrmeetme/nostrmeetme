@@ -4,6 +4,9 @@
     import AppCreditsList from "$lib/components/AppCreditsList.svelte"
     import locale from "$lib/locale/en.json";
     import { user } from '$lib/stores/user';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 </script>
 <header class="box bg-primary text-center pb-1">
     <h1 class="title text-[2.5em] indicator" style="line-height:1em;margin-top:10px">
@@ -56,7 +59,7 @@
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
         <h3 class="font-bold text-lg">User Settings</h3>
-        <p class="py-4 text-right"><a href="/">Logout</a></p>
+        <p class="py-4 text-right"><button class="btn btn-sm btn-primary" on:click={() => dispatch('logout')}>Logout</button></p>
         <div class="modal-action">
         </div>
     </div>

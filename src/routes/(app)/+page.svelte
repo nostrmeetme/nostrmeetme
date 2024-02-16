@@ -1,13 +1,11 @@
 <script lang="ts">
     import SiteLogoCard from "$lib/components/SiteLogoCard.svelte";
-    import LoginCard from "$lib/components/LoginCard.svelte";
     import AppPromoCard from "$lib/components/AppPromoCard.svelte";
     import AppTimeline from "$lib/components/AppTimeline.svelte";
     import AwardsPromoCard from "$lib/components/AwardsPromoCard.svelte";
     import AppCreditsList from "$lib/components/AppCreditsList.svelte";
 </script>
 
-<LoginCard></LoginCard>
 <SiteLogoCard></SiteLogoCard>
 <AppPromoCard></AppPromoCard>
 <br>
