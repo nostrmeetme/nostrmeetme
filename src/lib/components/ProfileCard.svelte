@@ -1,38 +1,36 @@
 <script lang="ts">
-    import ndk from '$lib/stores/ndk';
-    import { user } from '$lib/stores/user';
-    // import { Avatar } from '@nostr-dev-kit/ndk-svelte-components';
     import { onMount , onDestroy} from 'svelte';
     import * as userLib from '$lib/utils/user';
     import { copy } from 'svelte-copy';
     import QrCodeImage from "$lib/components/QrCodeImage.svelte";
     import {Invite} from '$lib/utils/invite'
-
-    export let idtype: userLib.PubidTypes | undefined = undefined;
-    export let pubid: string | undefined = undefined;
+    import { page } from '$app/stores';
+   import { Auth } from '$lib/utils/user';
 
     // TODO generate unique signup code bfor each QR, by hash of date and a secret
     let qrid = '12345';
     let error = "";
-    let inviteurl: URL;
+    let inviteurl: string;
+    let pubuser = Auth.pubuser;
 
-    // if($user == undefined || $user.npub != pubid || $user.pubkey != pubid || $user.profile?.nip05 != pubid){
+    // if(pubuser == undefined || pubuser.npub != pubid || pubuser.pubkey != pubid || pubuser.profile?.nip05 != pubid){
     onMount(async() => {
         console.log('ProfileCard component mounted');
         // user.set()
-        if($user) {
-            inviteurl = new Invite($user).toURL();
+        if($pubuser) {
+            // inviteurl = new URL('/');
+            inviteurl = await new Invite($pubuser).toURL($page.data.savestore);
         }else{
             throw console.log("no user available to render ProfileCard");
         }        
     });
     onDestroy(async() => {
-        // $user = undefined;
+        // pubuser = undefined;
     });
     // }
 </script>
 
-{#if $user && $user.profile}
+{#if  $pubuser && $pubuser.profile}
 <div class="flex justify-center px-3">
 <div class="card bg-black w-min">
     <figure>
@@ -42,27 +40,35 @@
                 <div class="border-primary border-solid border-2">
                     <QrCodeImage 
                     qrtype="profile"
-                    qrdata="nostr:{$user.npub}" 
-                    qrimage="{$user.profile?.image}" 
-                    qrtitle="{$user.profile?.displayName || $user.profile?.name}"
-                    qrsubtitle="{$user.profile?.nip05 || $user.npub}"
+                    qrdata="nostr:{$pubuser.npub}" 
+                    qrimage="{$pubuser.profile?.image}" 
+                    qrtitle="{$pubuser.profile?.displayName || $pubuser.profile?.name}"
+                    qrsubtitle="{$pubuser.profile?.nip05 || $pubuser.npub}"
                     qrlogo=""></QrCodeImage>
                 </div>
                 <div class="flex justify-between w-full pb-5">
-                    <button class="btn btn-sm text-info" use:copy={$user.npub}>Copy npub</button>
-                    <a class="btn btn-sm text-info" href="nostr:{$user.npub}">Launch client</a>
+                    <button class="btn btn-sm text-info" use:copy={$pubuser.npub}>Copy npub</button>
+                    <a class="btn btn-sm text-info" href="nostr:{$pubuser.npub}">Launch In client</a>
                 </div>
             </div>
 
-            <input aria-label="Create Account"  type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px" disabled/>
-            <div role="tabpanel" class="tab-content h-[380px] w-[380px] pt-[8px]" style="overflow:hidden">
-                <QrCodeImage 
+            <input aria-label="Create Account"  type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px"/>
+            <div role="tabpanel" class="tab-content h-[410px] w-[380px]" style="overflow:hidden;">
+            {#if inviteurl}
+                <div class="border-primary border-solid border-2">
+                    <QrCodeImage 
                     qrtype="invite"
-                    qrdata="{inviteurl.toString()}" 
-                    qrimage="{$user.profile?.image}" 
-                    qrtitle="{$user.profile?.displayName || $user.profile?.name}"
-                    qrsubtitle="{$user.profile?.nip05 || $user.npub}"
+                    qrdata="{inviteurl}" 
+                    qrimage="{$pubuser.profile?.image}" 
+                    qrtitle="{$pubuser.profile?.displayName || $pubuser.profile?.name}"
+                    qrsubtitle="{$pubuser.profile?.nip05 || $pubuser.npub}"
                     qrlogo=""></QrCodeImage>
+                </div>
+                <div class="flex justify-between w-full pb-5">
+                    <button class="btn btn-sm text-info" use:copy={inviteurl}>Copy Invite Url</button>
+                    <a class="btn btn-sm text-info" href="{inviteurl}">Go To Invite</a>
+                </div>
+            {/if}
             </div>
         </div>
     </figure>
@@ -70,29 +76,29 @@
         <div class="w-full flex justify-center " style="position:relative;">
             <div class="avatar" style="position:absolute; top:-150px">
                 <div class="rounded-full ring ring-primary ring-offset-2 ring-offset-base-100 w-[150px]">
-                    <img src={$user.profile?.image} alt="avatar"/>
+                    <img src={$pubuser.profile?.image} alt="avatar"/>
                 </div>
             </div>
         </div>
 
 
-        <h2 class="card-title">{$user.profile?.displayName || $user.profile?.name}</h2>
-        <p class="text-info">{$user.profile?.nip05}</p>
+        <h2 class="card-title">{$pubuser.profile?.displayName || $pubuser.profile?.name}</h2>
+        <p class="text-info">{$pubuser.profile?.nip05}</p>
         <div class="tooltip tooltip-right" data-tip="copy npub">
-            <button use:copy={$user.npub}>
+            <button use:copy={$pubuser.npub}>
                 <small class="badge text-secondary p-3 text-xs">
-                    <b>npub</b><code>{`${$user.npub.slice(4, 14)}...`}</code> 
+                    <b>npub</b><code>{`${$pubuser.npub.slice(4, 14)}...`}</code> 
                 </small> 
                 <big>&#10697;</big>
             </button>
         </div>
-        <p class="" style="overflow-wrap: break-word; word-break: break-word;">{$user.profile?.about}</p>
+        <p class="" style="overflow-wrap: break-word; word-break: break-word;">{$pubuser.profile?.about}</p>
 
     </div>   
 </div>
 </div>
 {/if}
-{#if !$user}
+{#if !$pubuser}
 <div class="flex flex-col gap-4 w-[420px] p-5 indicator">
     {#if error}<p class="alert alert-error w-full">{error}</p>{/if}
     <div class="skeleton h-[240px] w-full"></div>
