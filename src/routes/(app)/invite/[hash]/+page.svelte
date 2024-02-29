@@ -2,14 +2,24 @@
     import InvitationCard from "$lib/components/InvitationCard.svelte";
     import {page} from "$app/stores";
     import {Invite} from '$lib/utils/invite';
+    import locale from "$lib/locale/en.json";
+    import { createEventDispatcher, onMount } from 'svelte';
+    import type { LayoutData } from "../../$types";
+  import AppCreditsList from "$lib/components/AppCreditsList.svelte";
+  import AppHeader from "$lib/components/AppHeader.svelte";
+  import { Auth } from "$lib/utils/user";
 
-    // let invitecode = $page.params.invitecode;
-    const invite = new Invite().fromURL($page.url);
+    let login = Auth.loginFromDom
+    // let pubuser = $page.data.pubuser
+    let invite:Invite;
+    onMount( async () => {
+        invite = await new Invite().fromURL($page.url).then(i=>i);
+    })
+    </script>
+    <p>
+    sign up to nostr!
+    </p>
 
-    if(invite){
-
-    }
-</script>
-
-
-<InvitationCard nip46={invite?.options.usenip46} ></InvitationCard>
+{#if invite}
+<InvitationCard on:login={login}></InvitationCard>
+{/if}

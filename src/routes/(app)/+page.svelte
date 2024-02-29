@@ -1,11 +1,20 @@
 <script lang="ts">
+    import LoginCard from "$lib/components/LoginCard.svelte";
     import SiteLogoCard from "$lib/components/SiteLogoCard.svelte";
     import AppPromoCard from "$lib/components/AppPromoCard.svelte";
     import AppTimeline from "$lib/components/AppTimeline.svelte";
     import AwardsPromoCard from "$lib/components/AwardsPromoCard.svelte";
     import AppCreditsList from "$lib/components/AppCreditsList.svelte";
-</script>
+    import { page } from "$app/stores";
+    import { Auth } from "$lib/utils/user";
 
+    const pubuser = Auth.pubuser;
+
+
+</script>
+{#if !$pubuser}
+<LoginCard on:login={() => Auth.login()} ></LoginCard>
+{/if}
 <SiteLogoCard></SiteLogoCard>
 <AppPromoCard></AppPromoCard>
 <br>

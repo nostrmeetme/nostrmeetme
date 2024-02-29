@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { user } from "$lib/stores/user";
+  import { page } from "$app/stores";
 
-  let pathToQrcode = '/'+ $user?.profile?.nip05 || $user?.npub || '';
+  const {secuser, pubuser, appndk} = $page.data;
+
+  let pathToQrcode = '/'+ $pubuser?.profile?.nip05 || $pubuser?.npub || '';
 </script>
 
 <footer class="btm-nav h-[90px] bg-transparent" style="align-items:end;max-width:100vw;justify-content:stretch">
