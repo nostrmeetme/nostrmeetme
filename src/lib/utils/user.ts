@@ -60,9 +60,9 @@ export class Auth{
         console.log('login called');
         // if(!browser) return;
         let user:NDKUser|undefined;
-        const stored = Auth.getStores();
-        const secuser = get(Auth._secuser);
-        const pubuser = get(Auth._pubuser);
+        let stored = Auth.getStores();
+        let secuser = get(Auth._secuser);
+        let pubuser = get(Auth._pubuser);
 
         await Auth.loadNDK();
 
@@ -80,6 +80,9 @@ export class Auth{
         if(login === true){
             // login secuser from signer and unset pubuser
             await Auth.loginSecuser(await Auth.newSignedUser(), true);
+            let secuser = get(Auth._secuser)
+            if(secuser) redirect = secuser.profile?.nip05 ? 
+                '/nip05/'+secuser.profile?.nip05 : '/npub/'+secuser.npub;
         } 
         else
         if(typeof(login) == 'string'){
@@ -307,18 +310,21 @@ export class Auth{
         }
         return value;
     }
-    static handlePubidInput(event:KeyboardEvent, id:string){
-        console.log('handlePubidInput triggered');
-        let key = event.key;
+    static handlePubidInput(event:KeyboardEvent | MouseEvent, id:string){
+        let submit = false;
         let elem = document.getElementById(id) as HTMLInputElement;
-        if(elem?.nodeName == 'INPUT'){
-          // TODO auto suggest kind0 profiles from api.nostr.wine 
-          if(key == "Enter" && !!elem.value){
-            console.log('enter keydown detected on pubid input :'+elem.nodeName)
-            goto('/'+elem.value);
-          }
+        if(event instanceof MouseEvent){
+            submit = true;
         }
-      }
+        if(event instanceof KeyboardEvent){
+            let key = event.key;
+            if(elem?.nodeName == 'INPUT'){
+            // TODO auto suggest kind0 profiles from api.nostr.wine 
+            if(key == "Enter" && !!elem.value) submit = true;
+            }
+        }
+        if(submit) goto('/'+elem.value);
+    }
 }
 
 

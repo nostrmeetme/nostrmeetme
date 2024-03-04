@@ -2,10 +2,6 @@ import type { Reroute } from '@sveltejs/kit';
 import {useridIsType} from "$lib/utils/user";
 import { pathIsStatic } from '$lib/utils/routes';
 import * as nostrjson from '$lib/well-known/nostr.json'
-// import type { Handle } from '@sveltejs/kit';
-
-// const response = await fetch(`https://nostrmeet.me/well-known/nostr.json`);
-// const nostrjson = await response.json();
 
 // TODO read from and write to nostr.json file 
 // export const ssr = false;

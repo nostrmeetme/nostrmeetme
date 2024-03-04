@@ -1,6 +1,6 @@
 import { goto } from "$app/navigation";
-import { Auth } from "$lib/utils/user";
-import type { LayoutLoad } from "../$types";
+import { Auth, PUBUSER, SECUSER } from "$lib/utils/user";
+import type { LayoutLoad } from "./$types";
 
 /**
  * - login users
@@ -22,5 +22,7 @@ export const load: LayoutLoad = async ({params,url}) => {
         console.log('not logged in')
         goto('/',{replaceState:true});
     } 
-    // return Auth;
+    return {
+        // loggedin : (Auth.pubkeys[PUBUSER] || Auth.pubkeys[SECUSER] ? true : false)
+    }
 }

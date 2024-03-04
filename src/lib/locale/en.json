@@ -38,9 +38,10 @@
         },
         "LoginCard" : {
             "message_pubuser" : "Generate QR codes to invite your friends.",
-            "message_secuser" :  "Login to customize invite codes and track progress.",
-            "input" : "enter nip05, npub, or pubkey",
-            "button" : "nsec browser extension"
+            "input_pubuser" : "enter nip05, npub, or pubkey",
+            "button_pubuser" : "Get QR Code",
+            "message_secuser" :  "Login with browser extenstion to customize invites and track progress.",
+            "button_secuser" : "Login to Customize"
         },
         "AwardsPageCard" : {
             "message" : "Onboard your fiends to Nostr",

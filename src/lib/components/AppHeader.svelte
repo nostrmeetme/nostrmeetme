@@ -3,8 +3,8 @@
     import locale from "$lib/locale/en.json";
     import { Auth } from "$lib/utils/user";
 
-    const pubuser = Auth.pubuser;
-    const secuser = Auth.secuser;
+    $: pubuser = Auth.pubuser;
+    $: secuser = Auth.secuser;
     $: hasPubuserPubkey = Auth.pubkeys?.pubuser;
 </script>
 <header class="box bg-primary text-center pb-1">
@@ -75,16 +75,20 @@
         {/if}
         {#if !hasPubuserPubkey}
         <h3 class="font-bold text-md">{locale.app.auth.pubuser.login}</h3>
-        <p class="py-4 stacked text-right">
-            <input id="LoginMenuPubidInput" class="input input-bordered input-info w-full" type="text"
-            placeholder="{locale.component.LoginCard.input}"
-            on:keydown={(event) => Auth.handlePubidInput(event,'LoginMenuPubidInput')}/>        </p>
+          <div class="join w-full">
+            <input id="LoginMenuPubidInput" class="input join-item input-bordered input-primary text-center w-[70%]" type="text"
+              placeholder="{locale.component.LoginCard.input_pubuser}"
+              on:keydown={(event) => Auth.handlePubidInput(event,'LoginMenuPubidInput')}/>
+            <button class="btn join-item btn-primary w-[30%]" 
+              on:click={(event) => Auth.handlePubidInput(event,'LoginMenuPubidInput')}>
+              Go</button>
+          </div>
         {/if}
         {#if !$secuser}
-        <h3 class="font-bold text-md">{locale.app.auth.secuser.login}</h3>
+        <h3 class="font-bold text-md">{locale.component.LoginCard.button_secuser}</h3>
         <p class="stacked py-4 text-right">
             <button  class="btn btn-sm btn-primary" on:click={() => Auth.login(true)}>
-                <small>{locale.component.LoginCard.button}</small></button>
+                <small>{locale.app.auth.secuser.login}</small></button>
         </p>
         {/if}
         
