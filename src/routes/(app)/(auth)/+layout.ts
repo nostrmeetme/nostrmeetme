@@ -16,7 +16,7 @@ export const load: LayoutLoad = async ({params,url}) => {
     // login user from param OR from stored userid
     await Auth.login(pubid);
     // redirect to root page if not logged in.
-    if(!!Auth.pubkeys.pubuser){
+    if(!!Auth.pubkeys.pubuser || !!Auth.pubkeys.secuser){
         console.log('logged in')
     }else{
         console.log('not logged in')

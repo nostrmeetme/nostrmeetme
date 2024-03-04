@@ -2,7 +2,7 @@ import { bytesToHex } from '@noble/hashes/utils'
 import { sha256 } from '@noble/hashes/sha256'
 import { utf8Encoder } from 'nostr-tools/utils'
 import { json } from '@sveltejs/kit';
-import { SALT } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({request}){
@@ -18,6 +18,6 @@ export async function POST({request}){
 
 function toHash(value:any): String {
     let json = JSON.stringify(value);
-    let hash = sha256(utf8Encoder.encode(json+SALT));
-    return bytesToHex(hash);
+    let hash = sha256(utf8Encoder.encode(json+env.SALT));
+    return bytesToHex(hash).substring(21,36);
 }

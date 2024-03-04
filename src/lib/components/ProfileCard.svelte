@@ -1,17 +1,20 @@
 <script lang="ts">
     import { onMount , onDestroy} from 'svelte';
-    import * as userLib from '$lib/utils/user';
     import { copy } from 'svelte-copy';
     import QrCodeImage from "$lib/components/QrCodeImage.svelte";
     import {Invite} from '$lib/utils/invite'
     import { page } from '$app/stores';
    import { Auth } from '$lib/utils/user';
+    import { browser } from '$app/environment';
 
     // TODO generate unique signup code bfor each QR, by hash of date and a secret
     let qrid = '12345';
     let error = "";
     let inviteurl: string;
     let pubuser = Auth.pubuser;
+    $: qrwidth = 0;
+    $: tabwidth = 0;
+    $: qrheight = 0;
 
     // if(pubuser == undefined || pubuser.npub != pubid || pubuser.pubkey != pubid || pubuser.profile?.nip05 != pubid){
     onMount(async() => {
@@ -19,10 +22,14 @@
         // user.set()
         if($pubuser) {
             // inviteurl = new URL('/');
-            inviteurl = await new Invite($pubuser).toURL($page.data.savestore);
+            let invite = new Invite($pubuser);
+            inviteurl = await invite.toURL($page.url.origin);
         }else{
             throw console.log("no user available to render ProfileCard");
-        }        
+        }
+        qrwidth = Math.min(window.innerWidth - 20, 380);
+        qrheight = qrwidth + 30;
+        tabwidth = qrwidth * .5;
     });
     onDestroy(async() => {
         // pubuser = undefined;
@@ -30,30 +37,13 @@
     // }
 </script>
 
-{#if  $pubuser && $pubuser.profile}
+{#if  $pubuser && $pubuser.profile && qrwidth}
 <div class="flex justify-center px-3">
 <div class="card bg-black w-min">
-    <figure>
-        <div role="tablist" class="tabs tabs-boxed justify-center bg-black p-0">
-            <input aria-label="Follow Me" type="radio" name="qr_tabs" role="tab" class="tab bg-neutral" style="width:185px" checked/>
-            <div role="tabpanel" class="tab-content h-[410px] w-[380px]" style="overflow:hidden;">
-                <div class="border-primary border-solid border-2">
-                    <QrCodeImage 
-                    qrtype="profile"
-                    qrdata="nostr:{$pubuser.npub}" 
-                    qrimage="{$pubuser.profile?.image}" 
-                    qrtitle="{$pubuser.profile?.displayName || $pubuser.profile?.name}"
-                    qrsubtitle="{$pubuser.profile?.nip05 || $pubuser.npub}"
-                    qrlogo=""></QrCodeImage>
-                </div>
-                <div class="flex justify-between w-full pb-5">
-                    <button class="btn btn-sm text-info" use:copy={$pubuser.npub}>Copy npub</button>
-                    <a class="btn btn-sm text-info" href="nostr:{$pubuser.npub}">Launch In client</a>
-                </div>
-            </div>
-
-            <input aria-label="Create Account"  type="radio" name="qr_tabs" role="tab" class="tab" style="width:185px"/>
-            <div role="tabpanel" class="tab-content h-[410px] w-[380px]" style="overflow:hidden;">
+    <figure style="min-height:{qrheight}px">
+        <div role="tablist" class="tabs tabs-boxed justify-between bg-black p-0">
+            <input aria-label="Create Account"  type="radio" name="qr_tabs" role="tab" class="tab" style="width:{tabwidth}px" checked/>
+            <div role="tabpanel" class="tab-content h-[{qrheight}px] w-[{qrwidth}px]" style="overflow:hidden;">
             {#if inviteurl}
                 <div class="border-primary border-solid border-2">
                     <QrCodeImage 
@@ -62,13 +52,32 @@
                     qrimage="{$pubuser.profile?.image}" 
                     qrtitle="{$pubuser.profile?.displayName || $pubuser.profile?.name}"
                     qrsubtitle="{$pubuser.profile?.nip05 || $pubuser.npub}"
+                    qrsize={qrwidth}
                     qrlogo=""></QrCodeImage>
                 </div>
                 <div class="flex justify-between w-full pb-5">
                     <button class="btn btn-sm text-info" use:copy={inviteurl}>Copy Invite Url</button>
-                    <a class="btn btn-sm text-info" href="{inviteurl}">Go To Invite</a>
+                    <a class="btn btn-sm text-info" href="{inviteurl}" target="_blank">Go To Invite</a>
                 </div>
             {/if}
+            </div>
+
+            <input aria-label="Follow Me" type="radio" name="qr_tabs" role="tab" class="tab" style="width:{tabwidth}px"/>
+            <div role="tabpanel" class="tab-content h-[{qrheight}px] w-[{qrwidth}px]" style="overflow:hidden;">
+                <div class="border-primary border-solid border-2">
+                    <QrCodeImage 
+                    qrtype="profile"
+                    qrdata="nostr:{$pubuser.npub}" 
+                    qrimage="{$pubuser.profile?.image}" 
+                    qrtitle="{$pubuser.profile?.displayName || $pubuser.profile?.name}"
+                    qrsubtitle="{$pubuser.profile?.nip05 || $pubuser.npub}"
+                    qrsize={qrwidth}
+                    qrlogo=""></QrCodeImage>
+                </div>
+                <div class="flex justify-between w-full pb-5">
+                    <button class="btn btn-sm text-info" use:copy={$pubuser.npub}>Copy npub</button>
+                    <a class="btn btn-sm text-info" href="nostr:{$pubuser.npub}">Launch In client</a>
+                </div>
             </div>
         </div>
     </figure>

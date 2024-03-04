@@ -1,32 +1,30 @@
 <script lang="ts">
-    import SiteLogoCard from "./SiteLogoCard.svelte";
-    import LoginCard from "./LoginCard.svelte";
     import AppCreditsList from "$lib/components/AppCreditsList.svelte"
     import locale from "$lib/locale/en.json";
-    import { createEventDispatcher } from 'svelte';
-    import { page } from "$app/stores";
     import { Auth } from "$lib/utils/user";
 
     const pubuser = Auth.pubuser;
+    const secuser = Auth.secuser;
+    $: hasPubuserPubkey = Auth.pubkeys?.pubuser;
 </script>
 <header class="box bg-primary text-center pb-1">
     <h1 class="title text-[2.5em] indicator" style="line-height:1em;margin-top:10px">
-        <span class="indicator-item badge badge-secondary" style="top:3px">ALPHA</span> 
+        <span class="indicator-item badge badge-secondary p-2 text-xs" style="top:-2px;right:1px">v0.2 alpha</span> 
         <span>{locale.app.header.title}</span></h1>
 
     <div class="flex justify-between align-center items-center">
         {#if $pubuser}      
         <button class="avatar placeholder text-[25px] pl-2" onclick="creditsModal.showModal()">
-                <div class="text-neutral rounded-full w-[25px] ring ring-neutral">
+                <div class="text-secondary rounded-full w-[25px]">
                     <span>&#9829;︎</span>
                 </div>
-                <span class="text-xl  text-base-100">&nbsp;&#9662;</span>
+                <span class="text-xl  text-neutral">&nbsp;&#9662;</span>
             </button>  
         {/if}
         <p class="tagline w-full">{locale.app.header.tagline}</p> 
         {#if $pubuser}      
         <button class="avatar pr-2" onclick="userModal.showModal()" >
-            <span class="text-xl  text-neutral">&#9662;&nbsp;</span>
+            <span class="text-xl  text-neutral">&#9662;&nbsp;&nbsp;</span>
             <div class="rounded-full w-[25px] ring ring-neutral">
                 <img src={$pubuser.profile?.image} alt="avatar"/>
             </div>
@@ -59,10 +57,37 @@
         <form method="dialog">
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
-        <h3 class="font-bold text-lg">User Settings</h3>
-        <p class="py-4 text-right"><button class="btn btn-sm btn-primary" on:click={() => Auth.logout()}>Logout</button></p>
-        <div class="modal-action">
-        </div>
+        {#if $secuser}
+        <h3 class="font-bold text-md">{locale.app.auth.secuser.loggedin}</h3>
+        <p class="stacked py-4 text-right">
+            <span class="p-2">{$secuser.profile?.displayName || $secuser.profile?.name || $secuser.profile?.nip05}&nbsp;</span>
+            <button class="btn btn-sm btn-primary" on:click={() => Auth.logout(true)}>
+                {locale.app.auth.secuser.logout}</button>
+        </p>
+        {/if}
+        {#if hasPubuserPubkey}
+        <h3 class="font-bold text-md">{locale.app.auth.pubuser.loggedin}</h3>
+        <p class="py-4 stacked  text-right">
+            <span class="p-2">{$pubuser.profile?.displayName || $pubuser.profile?.name || $pubuser.profile?.nip05}&nbsp;</span>
+            <button class="btn btn-sm btn-primary" on:click={() => Auth.logout(false,'/qr')}>
+                {locale.app.auth.pubuser.logout}</button>
+        </p>
+        {/if}
+        {#if !hasPubuserPubkey}
+        <h3 class="font-bold text-md">{locale.app.auth.pubuser.login}</h3>
+        <p class="py-4 stacked text-right">
+            <input id="LoginMenuPubidInput" class="input input-bordered input-info w-full" type="text"
+            placeholder="{locale.component.LoginCard.input}"
+            on:keydown={(event) => Auth.handlePubidInput(event,'LoginMenuPubidInput')}/>        </p>
+        {/if}
+        {#if !$secuser}
+        <h3 class="font-bold text-md">{locale.app.auth.secuser.login}</h3>
+        <p class="stacked py-4 text-right">
+            <button  class="btn btn-sm btn-primary" on:click={() => Auth.login(true)}>
+                <small>{locale.component.LoginCard.button}</small></button>
+        </p>
+        {/if}
+        
     </div>
     <form method="dialog" class="modal-backdrop">
         <button>close</button>

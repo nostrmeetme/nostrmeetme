@@ -4,6 +4,19 @@
             "title" : "Meet Me On Nostr",
             "tagline" : "an app for sharing Nostr with friends."
         },
+        "auth" : {
+            "pubuser" : {
+                "login" : "Change User View",
+                "prompt" : "nip05, npub, or pubkey",
+                "loggedin" : "Viewing as:",
+                "logout" : "Exit View"
+            },
+            "secuser" :{
+                "login" : "Login",
+                "loggedin" : "Logged in as:",
+                "logout" : "Logout"
+            }
+        },
         "footer" : {
 
         }
@@ -14,10 +27,19 @@
         }
     },
     "component" : {
+        "InviteCard" : {
+            "default_advocate" : "Because your invite code was not recognized, and Nostr is better with frineds, im gonna go ahead and be your first friend on nostr. Feel free to contact me with any questions as you set up your account and find new frineds on Nostr.",
+            "welcome" : "Meet Me On Nostr",
+            "help_msg" : "Create an account to follow me to discover my favorite apps and trusted friends on Nostr.",
+            "button" : "Create an Account",
+            "aboutnostr" : "Nostr is the privacy respecting decentralized social network that everybody owns. Your account profile(s), your follows & followers, and the content you create on Nostr are yours forever. Use any app and post to any server that uses the Nostr protocol.",
+            "ownyoursocials" : "Own your socials.",
+            "learnmore" : "Learn more."
+        },
         "LoginCard" : {
-            "messagemvp" : "Login to generate a 'Follow Me' QR code for your friends.",
-            "message" :  "Login to generate custom Nostr invitation QR codes for your freinds to sign up and follow you, start a DM thread with you, and discover your reccomended Nostr favs.",
-            "input" : "nip05, npub, or pubkey",
+            "message_pubuser" : "Generate QR codes to invite your friends.",
+            "message_secuser" :  "Login to customize invite codes and track progress.",
+            "input" : "enter nip05, npub, or pubkey",
             "button" : "nsec browser extension"
         },
         "AwardsPageCard" : {

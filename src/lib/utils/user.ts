@@ -2,7 +2,6 @@ import { writable, get, type Writable, type Readable, type Unsubscriber } from '
 import NDK, { NDKUser, type NDKSigner, type NDKUserProfile, type NDKConstructorParams, NDKNip07Signer, NDKNip46Signer, NDKPrivateKeySigner, serializeProfile } from '@nostr-dev-kit/ndk';
 import { init as initNostrLogin } from "nostr-login"
 import { browser } from '$app/environment';
-import { dateTomorrow } from './helpers';
 import { goto } from '$app/navigation';
 
 export const NIP05 = 'nip05';
@@ -33,7 +32,7 @@ export class Auth{
     // connect NDK singleton upon instantiation
     static get ndk(){return Auth._ndk}
     // get current pubuser, or secuser for public tasks
-    static get pubuser(){return Auth._pubuser || Auth._secuser}
+    static get pubuser(){return get(Auth._pubuser) ? Auth._pubuser : Auth._secuser}
     // get only secuser for secure tasks
     static get secuser(){return Auth._secuser}
     // get() wrapper for obtaining raw values from readable stores
@@ -57,7 +56,7 @@ export class Auth{
      * - login({secuser:userid}) : login secuser from param (logout pubuser)
      * - login({pubuser:userid, secuser:userid}) : login all users from params
      */
-    static async login(login?:UserList | string | boolean){
+    static async login(login?:UserList | string | boolean, redirect?:string){
         console.log('login called');
         // if(!browser) return;
         let user:NDKUser|undefined;
@@ -107,6 +106,7 @@ export class Auth{
             }
         }
         // console.log('failed to login user');
+        if(redirect) goto(redirect);
         return;
     }
 
@@ -140,6 +140,9 @@ export class Auth{
     static logout(asSecuser:boolean = false, redirect?:string){
         Auth.logoutPubuser();
         if(asSecuser) Auth.logoutSecuser();
+        if(!get(Auth.secuser)){
+            redirect = '/';
+        }
         if(redirect) goto(redirect);
     }
     private static logoutPubuser(){
@@ -173,11 +176,11 @@ export class Auth{
     static unstore(key?: UserType){
         if(!key || key == SECUSER){
             Auth.pubkeys[SECUSER] = undefined;
-            if(browser) window.localStorage.unsetItem( SECUSER )
+            if(browser) window.localStorage.removeItem( SECUSER )
         }
         if(!key || key == PUBUSER) {
             Auth.pubkeys[PUBUSER] = undefined;
-            if(browser) window.localStorage.unsetItem( PUBUSER )
+            if(browser) window.localStorage.removeItem( PUBUSER )
         }
     }
     private static storeUser(user: Writable<NDKUser | undefined>, key: UserType){
@@ -189,7 +192,7 @@ export class Auth{
         }
     }
 
-    static async loadNDK(options:NDKConstructorParams = {}){
+    static async loadNDK(options:NDKConstructorParams = {}, asStaticProperty = true){
         let ndk:NDK | undefined;
         let config:NDKConstructorParams = {
             explicitRelayUrls: [
@@ -209,8 +212,8 @@ export class Auth{
         }catch{
             console.log('ndk FAILED to connect')
         }
-        if(ndk && Auth._ndk) Auth._ndk.set(ndk);
-        return Auth._ndk;
+        if(ndk && Auth._ndk && asStaticProperty) Auth._ndk.set(ndk);
+        return ndk;
     }
 
     private static async newUser(userid?:UseridTypes|string){
@@ -256,17 +259,19 @@ export class Auth{
         })
     }
 
-    private static async loadUserProfile(user:NDKUser){
+    static async loadUserProfile(user:NDKUser){
         // subscribe user.ndk to Auth.ndk
         let unsubNDK = Auth._ndk.subscribe(ndk => {
             if(!!user){
                 if(!!ndk) user.ndk = ndk;
             }else{
+                // remove subscruiber when !user
                 unsubNDK()
             }
         });
         // load user.profile
-        await user.fetchProfile()
+        // console.log('NDKUser.profile loaded : '+JSON.stringify(user.profile))
+        return await user.fetchProfile() || undefined
     }
 
     private static setActiveUser(user:NDKUser){
@@ -302,6 +307,18 @@ export class Auth{
         }
         return value;
     }
+    static handlePubidInput(event:KeyboardEvent, id:string){
+        console.log('handlePubidInput triggered');
+        let key = event.key;
+        let elem = document.getElementById(id) as HTMLInputElement;
+        if(elem?.nodeName == 'INPUT'){
+          // TODO auto suggest kind0 profiles from api.nostr.wine 
+          if(key == "Enter" && !!elem.value){
+            console.log('enter keydown detected on pubid input :'+elem.nodeName)
+            goto('/'+elem.value);
+          }
+        }
+      }
 }
 
 

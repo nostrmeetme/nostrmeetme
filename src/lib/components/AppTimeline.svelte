@@ -5,7 +5,7 @@
   <h3 class="text-2xl font-bold">MVP Features</h3>
   <ul class="steps steps-vertical text-left">
   <li class="step step-primary">generate “follow me” QR codes</li>
-  <li class="step">generate "create account" QR codes (with landing screen)</li>
+  <li class="step step-primary">generate "create account" QR codes (with landing screen)</li>
   <li class="step">basic onboarding support wiki</li>
   <li class="step">instant nip05 for new user and chat with advocate</li>
   <li class="step">minimal profile view and edit for new users</li>

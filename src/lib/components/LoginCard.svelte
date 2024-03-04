@@ -1,20 +1,33 @@
 <script lang="ts">
   import locale from "$lib/locale/en.json";
   import { Auth } from "$lib/utils/user";
-  import { createEventDispatcher } from 'svelte';
+  // import { createEventDispatcher } from 'svelte';
+  import { goto } from "$app/navigation";
 
-  const dispatch = createEventDispatcher();
+  // const dispatch = createEventDispatcher();
+  const secuser = Auth.secuser;
+
+  function handleSecuserLogin(){
+    Auth.login(true).then(() => {
+      let userid = $secuser?.profile?.nip05 || $secuser?.npub;
+      goto('/'+userid)
+    })
+
+  }
 </script>
 
 <div class="bg-neutral text-center p-5 pb-10 w-full" style="margin: 0 auto;">
   <div class="max-w-[420px]" style="margin:0 auto;">
-    <div class="flex justify-between p-2">
-      <form method="POST" class="w-[70%]">
-        <input name="pubid" class="input input-bordered input-info w-full" type="text" placeholder="{locale.component.LoginCard.input}"/>
-        <button type="submit" class="hidden"></button>
-      </form>
-      <button  class="btn w-[20%] btn-primary" on:click={() => Auth.login(true)}><small>{locale.component.LoginCard.button}</small></button>
+    <div class="text-center">
+      <p class="p-2 text-left text-info">{locale.component.LoginCard.message_pubuser}</p>
+      <input id="LoginCardPubidInput" class="input input-bordered input-info w-full text-center" type="text"
+      placeholder="{locale.component.LoginCard.input}"
+      on:keydown={(event) => Auth.handlePubidInput(event,'LoginCardPubidInput')}/>
     </div>
-      <p class="px-3 pt-2 text-left text-info">{locale.component.LoginCard.messagemvp}</p>
+    <p class="text-accent text-left pt-3 pl-2"><b>Comming soon ...</b></p>
+    <div class="flex justify-between">
+      <p class="pt-0 p-2 text-left text-info">{locale.component.LoginCard.message_secuser}</p>
+      <button  class="btn w-[33%] btn-primary" on:click={() => handleSecuserLogin()}><small>{locale.component.LoginCard.button}</small></button>
+    </div>
   </div>
 </div>

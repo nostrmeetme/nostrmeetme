@@ -1,9 +1,7 @@
-import {unixTimeNowInSeconds} from '$lib/utils/helpers';
-import { bytesToHex } from '@noble/hashes/utils'
-import { sha256 } from '@noble/hashes/sha256'
-import { utf8Encoder } from 'nostr-tools/utils'
 import { NDKUser } from '@nostr-dev-kit/ndk';
-import { PUBLIC_VITE_HOST } from '$env/static/public';
+import {env} from '$env/dynamic/public';
+import { Auth } from './user';
+import * as nostrjson from '$lib/well-known/nostr.json'
 /**
  *  invite URL format 
  * `/[INVITE]/[hash]?npub=[npub]&time=[timestamp]&[options]`
@@ -16,127 +14,134 @@ export type InviteHash = string;
 
 // search params for invite URLs
 export class Invite {
-    time : number = 0; // timestamp when invite was created
-    npub : string = ''; // id of the inviting account 
-    options : InviteOptions = {};
-    validated = false;
+    // time : number = 0; // timestamp when invite was created
+    // npub : string = ''; // id of the inviting account 
+    options ;
+    isvalid = false;
+    hash : string | undefined;
+    private _advocate : NDKUser | undefined;
 
 
-    constructor(user?:NDKUser,options:InviteOptions = {}){
-        let npub, time, invite;
-        if(user){
-            npub = user.npub || '';
-            time = user.npub ? unixTimeNowInSeconds() : 0;
-            invite = this.fromObject({npub,time,options}); 
-            this.validated = invite ? true : false; 
+    /**
+     * create an instance of invite object
+     * - from options object when generating an invite (generates new valid hash)
+     * - from URL `/invite/[hash]?[options]` of scanned invite code (stores hash for validating)
+     * 
+     * @param options 
+     * @returns 
+     */
+    constructor(options:InviteOptions | URL | NDKUser){
+        // let npub, time, invite;
+        if(options instanceof NDKUser){
+            this.options = new InviteOptions({npub:options.npub});
         }
+        else
+        if(options instanceof URL){
+            let path = options.pathname.split('/');
+            // require `/invite` at path root and `npub` in search params
+            if(path[1] == INVITE && options.searchParams.get('npub')) {
+                this.hash = path[2]
+                this.options = new InviteOptions(options.searchParams);
+            }
+        }
+        else
+        if(options instanceof InviteOptions){
+            this.options = new InviteOptions(options);
+        }
+        if(!(this as any).options) throw('invalid options for invite constructor')
         console.log('Invite constructed : '+JSON.stringify(this.toJSON()));
         return this;
     }
 
+    // sgets the profile of the npub the invitation as advocate
+    // if invitation is invalid, gets the default advocate account
+    // sets advocate property and local storage for retrieval
+    async getAdvocate(){
+        if(this._advocate) return this._advocate;
+
+        let advocate:NDKUser | undefined;
+        await this.validateHash();
+        if(this.isvalid){
+          advocate = new NDKUser({'npub':this.options?.npub});
+        }
+        if(!advocate){
+            advocate = new NDKUser({'pubkey':nostrjson.names.advocate});
+        }
+        await Auth.loadNDK();
+        advocate.profile = await Auth.loadUserProfile(advocate);
+
+        window.localStorage.setItem( 'advocate', advocate.pubkey);
+        this._advocate = advocate;
+        return advocate;
+    }
+     
+    async validateHash(){
+        if (!this.options) throw('no options to validate')
+        if (!this.hash) throw('no hash to validate')
+        let validHash = await this.toHash();
+        console.log('validating invite hash : ' + this.hash)
+        console.log('against valid hash : ' + validHash)
+        if (validHash == this.hash){
+            this.isvalid = true;
+            return true;
+        }
+        this.isvalid = false;
+        return false;
+    }
+
     // generates an invitecode and a valid URL fom Invite
-    async toURL(baseurl?:string):Promise<string>{
-        baseurl = !baseurl && PUBLIC_VITE_HOST ? 'http://'+PUBLIC_VITE_HOST+'/' : baseurl+'/'; 
-        let invite = this.toObject();
+    async toURL(baseurl:string = ''):Promise<string>{
+        baseurl = !baseurl && env.PUBLIC_VITE_HOST ? 'http://'+env.PUBLIC_VITE_HOST+'/' : baseurl+'/'; 
+        let invite = this.options;
+        if (!invite) throw('canot convert empty invite to URL');
         console.log('Invite to Object : '+JSON.stringify(invite))
-        let hash = '/' + await this.toHash();
+        let hash = '/' + (this.hash || await this.toHash());
         let urlparams = '';
         Object.entries(invite).forEach(([key, value]) => {
             if(!!value){
-                urlparams = !!urlparams ? `${urlparams}&` : '?';
+                urlparams = !!urlparams ? `${urlparams}&` : '/?';
                 urlparams = urlparams + `${key}=${value}`;
             }
         });
         let url = baseurl + INVITE + hash + urlparams;
-        console.log('Invite from URL : '+JSON.stringify((await this.fromURL(new URL(url))).toObject()))
         return url;
     }
 
-    async fromURL(url:URL):Promise<Invite>{
-        let path = url.pathname.split('/');
-        let testhash: string , validhash: string, invite;
+    private async toHash(): Promise<InviteHash> {
+        let onlyvalidate = this.hash ? true : false;
+        let normalized = {};
+        let hash;
+        if(!this.options) throw('cannot convert empty options to hash')
         try{
-            if(path[1] != INVITE || !url.searchParams) throw 'invalid URL';
-            testhash = path[2];
-            validhash = await this.toHash(url.searchParams);
-            if (testhash !== validhash) throw 'hash does not match invite';
-            invite = this.fromObject(url.searchParams);
-            this.validated = invite ? true : false;
-        }catch(error){
-            console.log(`error getting invite from URL : `+error)
-            return this; //TODO error
-        }
-        return invite;
-    }
-
-    fromObject(obj:any):Invite{
-        let invite = {options:new InviteOptions()} as Invite;
-        try{
-            Object.entries(obj).forEach(([key, value]) => {
+            Object.entries(this.options).forEach(([key, value]) => {
                 if(!!value){
-                    if(key == 'npub' || 'time'){
-                        (invite as any)[key] = value;
-                    }else if(key == 'options' && typeof value == 'object'){
-                        Object.assign(invite.options, value);
-                    }else{
-                        (invite.options as any)[key] = value;
-                    }
+                    (normalized as any)[key] = value.toString();
                 }
             });
         }catch{
+            throw('cannot convert options to hash')
         }
-        return this.validate(invite) ? Object.assign(this, invite) : this;
-    }
-
-    validate(invite?:any):boolean{
-        if(!invite) invite = this;
-        try{
-            // TODO maybe need to validate npub user exists?
-            if(typeof invite.npub !== 'string') throw 'invalid npub';
-            // TODO validate time is a date in the future
-            if(typeof invite.time !== 'number') throw 'invalid time';
-            if(!invite.options) {
-                invite.options = {};
-            }else{
-                if(typeof invite.options !== 'object') throw 'invalid options';
-                const defaultoptions = (new InviteOptions() as any);
-                Object.entries(invite.options).forEach(([key, value]) => {
-                    if(key === 'npub' || 'time') throw 'invalid options:'+key;
-                    if(typeof value !== defaultoptions[key]) throw 'invalid options:'+key;
-                })
-            }
-        }catch(error){
-            console.log(`could not validate invite : ${error}`)
-            return false;
-        }
-        return true;
-    }
-
-    async toHash(invite?:object): Promise<InviteHash> {
-        invite = invite || this;
-        let hash;
+        console.log('building hash from : '+JSON.stringify(normalized))
         const response = await fetch('/api/hash', {
                 method: 'POST',
-                body: JSON.stringify(invite),
+                body: JSON.stringify(normalized),
                 headers: {'Content-Type': 'application/json'}
             });
         ({hash} = await response.json());
+        if(!onlyvalidate) this.hash = hash;
         return hash;
     }
 
     toJSON(){
-        return this.toObject();
+        return this.options;
     }
-
-    toObject(){
-        const required = {npub:this.npub, time:this.time};
-        return {...required, ...this.options};
-    }
-
 }
+
 
 // optional URL params for invites
 export class InviteOptions  { 
+    npub : string = '';
+    ts:number = Date.now();
     expires? : number = 0; // timestamp of when invite expires: 0 = no expiration
     limit? : number = 0; // TODO number of uses
     usenip46? :boolean = true ; // use bunker or TODO local storage for new account nsec
@@ -144,6 +149,18 @@ export class InviteOptions  {
     nofollowback? : boolean = false;
     nowelcomemsg? : boolean = false;
     noannouncement? : boolean = false;
+
+    constructor(options:object|InviteOptions|URLSearchParams){
+        if(options instanceof URLSearchParams) 
+            options = convertURLSearchParamsToObject(options);
+        try{
+            if(!Object.keys(options).includes('npub')) throw('no npub key')
+            Object.assign(this,options)
+            if(!this.npub) throw('no npub')
+        }catch(e){
+            throw('failed to instantiate InviteOptions : ' + e)
+        }
+    }
 }
 
 
@@ -154,6 +171,14 @@ export class UserInviteOptions {
     announcement? : string = ''; // note published to your timeline when new account is created
     defaultexpiry? : number = 0; // number of seconds before invites expire
     defaullimit? : number = 0; // default use limit : 0 = unlimited
+}
+
+function convertURLSearchParamsToObject(params:URLSearchParams){
+    let object = {};
+    params.forEach( (value, key) => {
+        (object as any)[key] = value;
+    });
+    return object;
 }
 
 

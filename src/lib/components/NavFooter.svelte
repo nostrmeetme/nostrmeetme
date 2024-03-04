@@ -1,15 +1,36 @@
 <script lang="ts">
-  import { page } from "$app/stores";
-
-  const {secuser, pubuser, appndk} = $page.data;
-
+  import { page, navigating} from "$app/stores";
+  import {STATIC_ROUTES as ROUTES, staticPath} from '$lib/utils/routes'
+  import { Auth } from "$lib/utils/user";
+  
+  const pubuser = Auth.pubuser;
   let pathToQrcode = '/'+ $pubuser?.profile?.nip05 || $pubuser?.npub || '';
+  
+  $: isAwardActive = ($navigating?.to?.url.pathname.startsWith(ROUTES.AWARD) 
+                    || $page.url.pathname.startsWith(ROUTES.AWARD)) 
+                    && !$navigating?.from?.url.pathname.startsWith(ROUTES.AWARD);
+
+  $: isChatActive = ($navigating?.to?.url.pathname.startsWith(ROUTES.CHAT)
+                    || $page.url.pathname.startsWith(ROUTES.CHAT))
+                    && !$navigating?.from?.url.pathname.startsWith(ROUTES.CHAT);
+
+  $: isQRActive = ($navigating?.to?.params?.pubid 
+                  || $page.params?.pubid) 
+                  && !$navigating?.from?.params?.pubid? true : false;
+
+  $: isFriendsActive = ($navigating?.to?.url.pathname.startsWith(ROUTES.FRIENDS)
+                    || $page.url.pathname.startsWith(ROUTES.FRIENDS))
+                    && !$navigating?.from?.url.pathname.startsWith(ROUTES.FRIENDS);
+
+  $: isAppsActive = ($navigating?.to?.url.pathname.startsWith(ROUTES.APPS)
+                    || $page.url.pathname.startsWith(ROUTES.APPS))
+                    && !$navigating?.from?.url.pathname.startsWith(ROUTES.APPS);
 </script>
 
 <footer class="btm-nav h-[90px] bg-transparent" style="align-items:end;max-width:100vw;justify-content:stretch">
     <!-- <div class=""> -->
-        <button class="bg-primary p-1 h-[50px]">
-          <svg width="100%" height="100%" fill="#333" viewBox="0 0 90 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+        <a href={ROUTES.AWARD} class="bg-primary p-1 h-[50px]">
+          <svg width="100%" height="100%" fill={isAwardActive ? 'white' : 'black'} viewBox="0 0 90 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
             <g transform="matrix(1,0,0,1,0,-804)">
                 <g id="bars-icon" transform="matrix(0.995106,0,0,0.663404,826.413,334.776)">
                     <rect x="-830.477" y="707.83" width="90.443" height="90.443" style="fill:none;"/>
@@ -19,9 +40,9 @@
                 </g>
             </g>
           </svg>
-        </button>
-        <button class="bg-primary p-1 h-[50px]">
-          <svg width="100%" height="100%" fill="#333" viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+        </a>
+        <a href={ROUTES.CHAT} class="bg-primary p-1 h-[50px]">
+          <svg width="100%" height="100%" fill={isChatActive ? 'white' : 'black'}  viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
             <g transform="matrix(1,0,0,1,-112,-804)">
                 <g id="chat-icon" transform="matrix(0.995106,0,0,0.663404,938.953,334.776)">
                     <rect x="-830.477" y="707.83" width="90.443" height="90.443" style="fill:none;"/>
@@ -31,9 +52,9 @@
                 </g>
             </g>
           </svg>        
-        </button>
+        </a>
         <a href="{pathToQrcode}" class="bg-primary px-1 h-[80px]" style="border-radius:35px 35px 0 0;">
-          <svg width="100%" height="100%" fill="white" viewBox="0 0 91 91" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+          <svg width="100%" height="100%" fill={isQRActive ? 'white' : 'black'} viewBox="0 0 91 91" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
             <g transform="matrix(1,0,0,1,-235,-774)">
                 <g id="qrcode-icon" transform="matrix(0.995106,0,0,0.995106,1061.44,69.9876)">
                     <rect x="-830.477" y="707.83" width="90.443" height="90.443" style="fill:none;"/>
@@ -44,8 +65,8 @@
               </g>
             </svg>
           </a>
-          <button class="bg-primary p-1 h-[50px]">
-            <svg width="100%" height="100%" fill="#333" viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+          <a href={ROUTES.FRIENDS} class="bg-primary p-1 h-[50px]">
+            <svg width="100%" height="100%" fill={isFriendsActive ? 'white' : 'black'} viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
               <g transform="matrix(1,0,0,1,-337,-804)">
                   <g id="users-icon" transform="matrix(0.995106,0,0,0.663404,1164.05,334.776)">
                       <rect x="-830.477" y="707.83" width="90.443" height="90.443" style="fill:none;"/>
@@ -55,9 +76,9 @@
                   </g>
               </g>
             </svg>
-        </button>
-        <button class="bg-primary p-1 h-[50px]">
-          <svg width="100%" height="100%" fill="#333" viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+          </a>
+        <a href={ROUTES.APPS} class="bg-primary p-1 h-[50px]">
+          <svg width="100%" height="100%" fill={isAppsActive ? 'white' : 'black'} viewBox="0 0 91 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
             <g transform="matrix(1,0,0,1,-450,-804)">
                 <g id="grid-icon" transform="matrix(0.995106,0,0,0.663404,1276.6,334.776)">
                     <rect x="-830.477" y="707.83" width="90.443" height="90.443" style="fill:none;"/>
@@ -67,6 +88,6 @@
                 </g>
             </g>
           </svg>          
-        </button>
+        </a>
       <!-- </div> -->
 </footer>
