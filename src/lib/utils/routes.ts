@@ -1,4 +1,5 @@
 
+export const APP_DOMAIN = 'nostrmeet.me';
 export const STATIC_ROUTES = {
     AWARD : '/award', 
     CHAT : '/chat', 

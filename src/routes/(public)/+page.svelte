@@ -13,7 +13,7 @@
 
 </script>
 {#if !$pubuser}
-<LoginCard on:login={() => Auth.login()} ></LoginCard>
+<LoginCard ></LoginCard>
 {/if}
 <SiteLogoCard></SiteLogoCard>
 <AppPromoCard></AppPromoCard>

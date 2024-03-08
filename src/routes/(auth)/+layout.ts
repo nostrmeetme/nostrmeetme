@@ -1,7 +1,8 @@
 import { goto } from "$app/navigation";
-import { Auth, PUBUSER, SECUSER } from "$lib/utils/user";
+import { Auth, PUBUSER, SECUSER, useridIsType } from "$lib/utils/user";
 import type { LayoutLoad } from "./$types";
 
+export const ssr = false
 /**
  * - login users
  * - preload user qrcode image(s)
@@ -12,11 +13,14 @@ import type { LayoutLoad } from "./$types";
  */
 export const load: LayoutLoad = async ({params,url}) => {
     // if pubid url: set pubuser from pubid
-    const pubid = params.pubid;
+    let pubid:string | undefined = undefined;
+    if(params.pubid){
+        pubid = useridIsType(params.pubid) ? params.pubid : undefined;
+    };
     // login user from param OR from stored userid
     await Auth.login(pubid);
     // redirect to root page if not logged in.
-    if(!!Auth.pubkeys.pubuser || !!Auth.pubkeys.secuser){
+    if(!!Auth.pubkeys?.pubuser || !!Auth.pubkeys?.secuser){
         console.log('logged in')
     }else{
         console.log('not logged in')
