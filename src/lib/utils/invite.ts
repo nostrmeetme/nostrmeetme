@@ -1,7 +1,6 @@
 import { NDKUser } from '@nostr-dev-kit/ndk';
 import {env} from '$env/dynamic/public';
 import { Auth } from './user';
-import * as nostrjson from '$lib/well-known/nostr.json'
 /**
  *  invite URL format 
  * `/[INVITE]/[hash]?npub=[npub]&time=[timestamp]&[options]`
@@ -65,12 +64,15 @@ export class Invite {
           advocate = new NDKUser({'npub':this.options?.npub});
         }
         if(!advocate){
-            advocate = new NDKUser({'pubkey':nostrjson.names.advocate});
+            await fetch('/api/nip05?name=advocate').then( r => 
+                advocate = new NDKUser({'pubkey':(r.json() as any).names.advocate})
+            )
         }
-        await Auth.loadNDK();
-        advocate.profile = await Auth.loadUserProfile(advocate);
-
-        window.localStorage.setItem( 'advocate', advocate.pubkey);
+        if(advocate){
+            await Auth.loadNDK();
+            advocate.profile = await Auth.loadUserProfile(advocate);
+            window.localStorage.setItem( 'advocate', advocate.pubkey);
+        }
         this._advocate = advocate;
         return advocate;
     }
