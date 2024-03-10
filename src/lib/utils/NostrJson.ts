@@ -20,7 +20,8 @@ export class NostrJson {
     get pubkey(){ return Object.values(this._names)[0] };
     get relays(){ return this._relays?[this.pubkey]:undefined};
     public toObject(){
-        let nostrjson:NostrJsonData = {names:this._names, relays:this._relays};
+        let nostrjson:NostrJsonData = {names:this._names};
+        if(this._relays) nostrjson.relays = this._relays;
         return nostrjson || {};
     }
     public static parse(nostrjson:NostrJsonData|string|any){

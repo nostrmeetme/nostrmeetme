@@ -1,11 +1,18 @@
 <script lang="ts">
     import AppCreditsList from "$lib/components/AppCreditsList.svelte"
     import locale from "$lib/locale/en.json";
-    import { Auth } from "$lib/utils/user";
+    import { Auth, handleInputRegisterNip05 } from "$lib/utils/user";
 
     $: pubuser = Auth.pubuser;
     $: secuser = Auth.secuser;
     $: hasPubuserPubkey = Auth.pubkeys?.pubuser;
+
+    if($secuser ){
+        let pubkey = $secuser.pubkey;
+        function registerNip05(event:KeyboardEvent|MouseEvent, elemid:string){
+            handleInputRegisterNip05(event, elemid, pubkey, [])
+        }
+    }
 </script>
 <header class="box bg-primary text-center pb-1">
     <h1 class="title text-[2.5em] indicator" style="line-height:1em;margin-top:10px">
@@ -64,6 +71,15 @@
             <button class="btn btn-sm btn-primary" on:click={() => Auth.logout(true)}>
                 {locale.app.auth.secuser.logout}</button>
         </p>
+        <h3 class="font-bold text-md">Get NIP05 Nostr Name</h3>
+        <div class="join w-full">
+          <input id="LoginMenuPubidInput" class="input join-item input-bordered input-primary text-center w-[70%]" type="text"
+            placeholder="username"
+            on:keydown={(event) => handleInputRegisterNip05(event,'LoginMenuPubidInput',$secuser?.pubkey,[])}/>
+          <button class="btn join-item btn-primary w-[30%]" 
+            on:click={(event) => handleInputRegisterNip05(event,'LoginMenuPubidInput',$secuser?.pubkey,[])}>
+            Go</button>
+        </div>
         {/if}
         {#if hasPubuserPubkey}
         <h3 class="font-bold text-md">{locale.app.auth.pubuser.loggedin}</h3>
@@ -77,7 +93,7 @@
         <h3 class="font-bold text-md">{locale.app.auth.pubuser.login}</h3>
           <div class="join w-full">
             <input id="LoginMenuPubidInput" class="input join-item input-bordered input-primary text-center w-[70%]" type="text"
-              placeholder="{locale.component.LoginCard.input_pubuser}"
+              placeholder="{locale.component.LoginCard.placeholder}"
               on:keydown={(event) => Auth.handlePubidInput(event,'LoginMenuPubidInput')}/>
             <button class="btn join-item btn-primary w-[30%]" 
               on:click={(event) => Auth.handlePubidInput(event,'LoginMenuPubidInput')}>
@@ -85,7 +101,7 @@
           </div>
         {/if}
         {#if !$secuser}
-        <h3 class="font-bold text-md">{locale.component.LoginCard.button_secuser}</h3>
+        <h3 class="font-bold text-md">{locale.component.LoginCard.button_lg}</h3>
         <p class="stacked py-4 text-right">
             <button  class="btn btn-sm btn-primary" on:click={() => Auth.login(true)}>
                 <small>{locale.app.auth.secuser.login}</small></button>

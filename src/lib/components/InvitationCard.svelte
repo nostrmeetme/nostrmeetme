@@ -13,7 +13,7 @@
     let invite:Invite;
     $: invite = new Invite($page.url);
     // console.log('rendering invite : '+JSON.stringify(invite.toJSON()));
-    let advocate: NDKUser;
+    let advocate: NDKUser | undefined;
     $: advocate;
     let aboutlimit = 250;
     onMount(async () => {
@@ -26,7 +26,7 @@
       }
     async function onSignupClick() {
       let secuserPubkey = await launchNostrLoginDialog(optsNostrLogin);
-      Auth.login({secuser:(secuserPubkey as string)},STATIC_ROUTES.FRIENDS)
+      // Auth.login({secuser:(secuserPubkey as string)},STATIC_ROUTES.FRIENDS)
     }
 
 </script>

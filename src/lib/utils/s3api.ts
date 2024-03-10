@@ -45,7 +45,7 @@ export class s3 {
                 "/" +
                 S3ObjectInput.Key
             );
-            return await data.Body?.transformToString();
+            return await data.Body?.transformToString() || '';
         } catch (err) {
             console.log("send Error", err);
             throw('s3.send() : '+err);
@@ -59,13 +59,11 @@ export class s3 {
         let input:S3PutObjectInput = {
             Bucket : "nostrmeetme", 
             Key : `well-known/${name}.json`, 
-            Body : JSON.stringify(nostrjson), 
+            Body : JSON.stringify(nostrjson.toObject()), 
             ACL : "private", 
             Metadata : {}
         }
-        return  await s3.send('put',input).then(async data => {
-            return NostrJson.parse(data)
-        })  
+        return  await s3.send('put',input).then(() => true ).catch(() => false)
     }
 
     // Step 3: Define the parameters for the object you want to upload.

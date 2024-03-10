@@ -4,10 +4,10 @@ import { init as initNostrLogin, type NostrLoginOptions} from "nostr-login"
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
 import type { InviteOptions } from './invite';
-import { APP_DOMAIN } from './routes';
 import { NostrJson } from './NostrJson';
 // import { NostrJson } from './s3api';
 
+export const NIP05_DOMAIN = 'nostrmeet.me';
 export const USERNAME = 'username';
 export const NIP05 = 'nip05';
 export const NPUB = 'npub';
@@ -69,7 +69,7 @@ export class Auth{
      * - login({secuser:userid}) : login secuser from param (logout pubuser)
      * - login({pubuser:userid, secuser:userid}) : login all users from params
      */
-    static async login(login?:UserList | string | boolean | NDKSigner, redirect:string|boolean = false){
+    static async login(login?:UserList | string | boolean | NDKSigner, password?:string, redirect:string|boolean = false){
         console.log('login called');
         // if(!browser) return;
         let user:NDKUser|undefined;
@@ -81,6 +81,7 @@ export class Auth{
         await Auth.loadNDK();
 
         if(!login){
+            console.log('loging in user sessions from storage');
             try{
                 // login users from storage
                 if(login === false){
@@ -96,15 +97,14 @@ export class Auth{
         } 
         else
         if(login === true || !!signer){
+            console.log('loging in user via nip07 signer');
             // login secuser from signer and unset pubuser
             Auth._signer = signer ? signer : await Auth.newSigner();
             await Auth.loginSecuser(await Auth._signer.user(), true);
-            let secuser = get(Auth._secuser)
-            if(secuser && redirect === true) redirect = secuser.profile?.nip05 ? 
-                '/nip05/'+secuser.profile?.nip05 : '/npub/'+secuser.npub;
         } 
         else
         if(typeof(login) == 'string'){
+            console.log('loging in user from passed userid');
             // login pubuser from param 
             await Auth.loginPubuser(await Auth.newUser(login));
             try{
@@ -118,6 +118,7 @@ export class Auth{
         } 
         else
         if(!signer && typeof(login) == 'object'){
+            console.log('loging in user from passed data');
             login = login as UserList;
             if(!!login[PUBUSER]){
                 // login pubuser from value 
@@ -133,34 +134,55 @@ export class Auth{
             }
         }
         // console.log('failed to login user');
-        if(typeof(redirect) == 'string') goto(redirect);
+        if(redirect) Auth.loginRedirect(redirect);
         return;
+    }
+
+    private static loginRedirect(redirect:string|true){
+        if(redirect === true){
+            let loggedin = get(Auth.pubuser);
+            if(loggedin) {
+                let {username, domain} = parseNip05(loggedin.profile?.nip05);
+                redirect = domain == NIP05_DOMAIN ? '/'+username 
+                : !!loggedin.profile?.nip05 ? '/'+loggedin.profile.nip05 
+                : '/'+loggedin.npub;
+            }
+        }
+        if(typeof(redirect) == 'string') goto(redirect);
     }
 
     private static async loginPubuser(user?:NDKUser){
         if(!user) return;
-        await Auth.loadUserProfile(user);
-        // if no profile found on nostr, do not log in user.
-        if(!user.profile){
-            console.log('pubuser not logged in : no profile on nostr');
-            return;
+        let pubuser = get(Auth._pubuser);
+        if(!pubuser || (pubuser.pubkey !== user.pubkey)){
+            console.log('loging in new pubuser');
+            await Auth.loadUserProfile(user);
+            // if no profile found on nostr, do not log in user.
+            if(!user.profile){
+                console.log('pubuser not logged in : no profile on nostr');
+                return;
+            }
+            Auth.setActiveUser(user);
+            Auth._pubuser.set(user)
+            Auth.store(PUBUSER)
         }
-        Auth.setActiveUser(user);
-        Auth._pubuser.set(user)
-        Auth.store(PUBUSER)
         return Auth._pubuser;
     }
 
     private static async loginSecuser(user?:NDKUser, resetPubuser = false){
         if(!user) return;
-        await Auth.loadUserProfile(user);
+        let secuser = get(Auth._secuser);
+        if(!secuser || (secuser.pubkey !== user.pubkey)){
+            console.log('loging in new secuser');
+            await Auth.loadUserProfile(user);
+            Auth._secuser.set(user);
+        }
         if(resetPubuser && Auth.pubkeys[PUBUSER]){
             Auth.setActiveUser(user);
             Auth.logoutPubuser();            
         }
-        Auth._secuser.set(user);
         Auth.store();
-        return Auth._pubuser;
+        return Auth._secuser;
     }
 
     // TODO
@@ -260,31 +282,52 @@ export class Auth{
         return ndk;
     }
 
-    private static async newUser(userid?:string){
+    /**
+     * 
+     * @param userid : username, nip05, npub, pubkey
+     * @param forLogin : if true : returns undefined if user is already logged in. 
+     * @returns 
+     */
+    private static async newUser(userid?:string, forLogin=true){
         if(!userid) return undefined;
         let user :NDKUser | undefined = undefined;
         const idtype = useridIsType(userid);
         switch (idtype) {
-        case USERNAME:
-            // load nip05 from app domain
-            user =  await NDKUser.fromNip05(userid+'@'+APP_DOMAIN);
-            break
         case NIP05:
             // load nip05
-            user =  await NDKUser.fromNip05(userid);
+            if(!forLogin || userid != get(Auth.pubuser)?.profile?.nip05){
+                console.log('new user instantiated from nip05');
+                user =  await NDKUser.fromNip05(userid);
+            }
             break;
         case NPUB:
             // load npub
-            user = new NDKUser({'npub':userid});
+            if(!forLogin || userid != get(Auth.pubuser)?.npub){
+                console.log('new user instantiated from npub');
+                user = new NDKUser({'npub':userid});
+            }
             break;
         case PUBKEY:
             //load pubkey
-            user = new NDKUser({'pubkey':userid});
+            if(!forLogin || userid != get(Auth.pubuser)?.pubkey){
+                console.log('new user instantiated from pubkey');
+                user = new NDKUser({'pubkey':userid});
+            }
             break;
+        case USERNAME:
+            // load nip05 from app domain
+            let useridNip05 = userid+'@'+NIP05_DOMAIN;
+            // TODO check existence of nip05 against NostrName cloud storage
+            if(!forLogin || useridNip05 != get(Auth.pubuser)?.profile?.nip05){
+                console.log('new user instantiated from username');
+                user =  await NDKUser.fromNip05(useridNip05);
+            }
+            break        
         default:
             console.log('invalid userid for new user');
             return undefined;
         }
+        if(!user) console.log('new user not instantiated (already logged in)');
         return user;
     }
 
@@ -408,10 +451,10 @@ export function useridIsType(userid:string|undefined = undefined, type:UseridTyp
         const nip05Regex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
         const npubRegex = /^npub1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{58}$/;
         const pubkeyRegex = /^[0-9a-fA-F]{64}$/;
-        if(((type == USERNAME || (type == undefined && !isType))) && usernameregex.test(userid)) isType = USERNAME;
         if(((type == NIP05 || (type == undefined && !isType))) && nip05Regex.test(userid)) isType = NIP05;
         if(((type == NPUB || (type == undefined && !isType))) && npubRegex.test(userid)) isType = NPUB;
         if(((type == PUBKEY || (type == undefined && !isType))) && pubkeyRegex.test(userid)) isType = PUBKEY;
+        if(((type == USERNAME || (type == undefined && !isType))) && usernameregex.test(userid)) isType = USERNAME;
     }
     console.log('checking userid istype : "'+ userid +'" = '+isType);
     return isType;
@@ -437,7 +480,7 @@ export function implementsNDKSigner(signer:any){
 }
 
 // TODO
-export async function registerNip05(name:string, pubkey:string, relays:string[]){
+export async function registerNip05(name:string, pubkey:string, relays?:string[]){
     // POST to api nostrmeet.me/api/nip05
     const response = await fetch('/api/nip05', {
         method: 'PUT',
@@ -445,4 +488,19 @@ export async function registerNip05(name:string, pubkey:string, relays:string[])
         headers: {'Content-Type': 'application/json'}
     });
     return NostrJson.parse(await response.json());
+}
+
+export function handleInputRegisterNip05(event:KeyboardEvent | MouseEvent, elemid:string, pubkey?:string, relays?:string[]){
+    let submit = false;
+    let elem = document.getElementById(elemid) as HTMLInputElement;
+    if(event instanceof MouseEvent){
+        submit = true;
+    }
+    if(event instanceof KeyboardEvent){
+        let key = event.key;
+        if(elem?.nodeName == 'INPUT'){
+        if(key == "Enter" && !!elem.value) submit = true;
+        }
+    }
+    if(submit && pubkey) registerNip05(elem.value, pubkey, relays);
 }
